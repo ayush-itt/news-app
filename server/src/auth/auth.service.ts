@@ -5,6 +5,7 @@ import { LoginDto } from './dto/login.dto';
 import { User } from '../database/entities/user.entity';
 import { AUTH_CONSTANTS } from './constants';
 import { AuthResult } from './interfaces/auth-result.interfaces';
+import { RoleEnum } from '../common/enums/roles.enum';
 
 @Injectable()
 export class AuthService {
@@ -49,7 +50,7 @@ export class AuthService {
     const payload = {
       sub: user.id,
       username: user.username,
-      role: user.role?.name || 'user',
+      role: user.role?.name || RoleEnum.USER,
     };
 
     return {
@@ -58,7 +59,7 @@ export class AuthService {
         id: user.id,
         username: user.username,
         email: user.email,
-        role: user.role?.name || 'user',
+        role: user.role?.name || RoleEnum.USER,
       },
     };
   }

@@ -1,9 +1,11 @@
+import { SECURITY } from '@/common/constants/security.constants';
+
 export const AUTH_CONSTANTS = {
   COOKIE_NAME: 'access_token',
   COOKIE_OPTIONS: {
     httpOnly: true,
     sameSite: 'lax' as const,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+    maxAge: SECURITY.COOKIE_MAX_AGE,
   },
   JWT_PAYLOAD: {
     ISSUER: 'news-app',

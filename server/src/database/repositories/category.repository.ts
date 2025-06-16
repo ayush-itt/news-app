@@ -75,4 +75,11 @@ export class CategoryRepository {
 
     return { categories, total };
   }
+
+  async findByIds(ids: number[]): Promise<Category[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+    return await this.repository.findByIds(ids);
+  }
 }

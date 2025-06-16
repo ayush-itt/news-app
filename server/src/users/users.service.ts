@@ -9,6 +9,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from '../database/entities/user.entity';
 import { UserRepository } from '../database/repositories';
 import { AUTH_CONSTANTS } from '../auth/constants';
+import { PAGINATION } from '../common/constants/pagination.constants';
 
 @Injectable()
 export class UsersService {
@@ -43,8 +44,8 @@ export class UsersService {
   }
 
   async getUsersWithPagination(
-    page: number = 1,
-    limit: number = 10,
+    page: number = PAGINATION.DEFAULT_PAGE,
+    limit: number = PAGINATION.DEFAULT_LIMIT,
   ): Promise<{ users: User[]; total: number }> {
     return await this.userRepository.findWithPagination(page, limit);
   }

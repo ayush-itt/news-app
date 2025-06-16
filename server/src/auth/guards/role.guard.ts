@@ -1,8 +1,8 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { RoleEnum } from '../../common/enums/roles.enum';
+import { RoleEnum } from '@/common/enums/roles.enum';
 import { ROLES_KEY } from '../decorators/roles.decorator';
-import { User } from '../../database/entities/user.entity';
+import { User } from '@/database/entities/user.entity';
 
 interface RequestWithUser extends Request {
   user: User;
