@@ -38,7 +38,6 @@ export class ArticlesService {
 
     // Create the article - transform DTO to entity data
     const transformedData = {
-      uuid: createArticleDto.uuid,
       title: createArticleDto.title,
       content: createArticleDto.content,
       author: createArticleDto.author,
@@ -93,14 +92,6 @@ export class ArticlesService {
     const article = await this.articleRepository.findByIdWithCategories(id);
     if (!article) {
       throw new NotFoundException(`Article with ID ${id} not found`);
-    }
-    return article;
-  }
-
-  async findArticleByUuid(uuid: string): Promise<Article> {
-    const article = await this.articleRepository.findByUuid(uuid);
-    if (!article) {
-      throw new NotFoundException(`Article with UUID ${uuid} not found`);
     }
     return article;
   }

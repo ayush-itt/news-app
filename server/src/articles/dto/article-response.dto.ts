@@ -11,12 +11,6 @@ export class ArticleResponseDto {
   id: number;
 
   @ApiProperty({
-    description: 'UUID of the article',
-    example: '550e8400-e29b-41d4-a716-446655440000',
-  })
-  uuid: string;
-
-  @ApiProperty({
     description: 'Title of the article',
     example: 'Breaking: Major Technology Breakthrough Announced',
   })
@@ -70,7 +64,6 @@ export class ArticleResponseDto {
   static fromEntity(article: Article): ArticleResponseDto {
     const dto = new ArticleResponseDto();
     dto.id = article.id;
-    dto.uuid = article.uuid;
     dto.title = article.title;
     dto.content = article.content;
     dto.author = article.author;

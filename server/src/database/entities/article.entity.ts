@@ -13,9 +13,6 @@ export class Article {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 255, unique: true })
-  uuid: string;
-
   @Column({ type: 'varchar', length: 500, nullable: false })
   title: string;
 

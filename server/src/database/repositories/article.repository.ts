@@ -53,13 +53,6 @@ export class ArticleRepository extends Repository<Article> {
     });
   }
 
-  async findByUuid(uuid: string): Promise<Article | null> {
-    return await this.findOne({
-      where: { uuid },
-      relations: ['categories'],
-    });
-  }
-
   async updateArticle(
     id: number,
     updateArticleDto: UpdateArticleDto,

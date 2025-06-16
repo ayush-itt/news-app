@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ArticlesModule } from './articles/articles.module';
+import { UserActionsModule } from './user-actions/user-actions.module';
 import { DatabaseModule } from './database/database.module';
 import { getDatabaseConfig } from './database/database.config';
 import { AppConfigModule } from './config/app-config/app-config.module';
@@ -28,6 +29,7 @@ import { AppConfigService } from './config/app-config/app-config.service';
     UsersModule,
     CategoriesModule,
     ArticlesModule,
+    UserActionsModule,
   ],
 })
 export class AppModule {}

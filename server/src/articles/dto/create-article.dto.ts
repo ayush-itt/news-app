@@ -14,14 +14,6 @@ import { Transform } from 'class-transformer';
 
 export class CreateArticleDto {
   @ApiProperty({
-    description: 'Unique identifier for the article',
-    example: '550e8400-e29b-41d4-a716-446655440000',
-  })
-  @IsString()
-  @IsNotEmpty()
-  uuid: string;
-
-  @ApiProperty({
     description: 'Title of the article',
     example: 'Breaking: Major Technology Breakthrough Announced',
     maxLength: 500,

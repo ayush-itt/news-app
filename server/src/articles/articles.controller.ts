@@ -221,23 +221,6 @@ export class ArticlesController {
     return ArticleResponseDto.fromEntity(article);
   }
 
-  @Get('uuid/:uuid')
-  @Auth()
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get article by UUID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Article retrieved successfully',
-    type: ArticleResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Article not found' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiParam({ name: 'uuid', type: String, description: 'Article UUID' })
-  async findByUuid(@Param('uuid') uuid: string): Promise<ArticleResponseDto> {
-    const article = await this.articlesService.findArticleByUuid(uuid);
-    return ArticleResponseDto.fromEntity(article);
-  }
-
   // TODO: Temporarily disabled - Update article route
   // @Patch(':id')
   // @Auth()
