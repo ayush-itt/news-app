@@ -8,7 +8,7 @@ import { RegisterDto } from './dto/register.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from '../database/entities/user.entity';
 import { UserRepository } from '../database/repositories';
-import { AUTH_CONSTANTS } from '../auth/constants';
+import { AUTH } from '@/common/constants/auth.constants';
 import { PAGINATION } from '../common/constants/pagination.constants';
 
 @Injectable()
@@ -67,19 +67,17 @@ export class UsersService {
     const userExists = await this.checkIfUserExists(username, email);
 
     if (userExists) {
-      throw new ConflictException(AUTH_CONSTANTS.MESSAGES.USER_EXISTS);
+      throw new ConflictException(AUTH.MESSAGES.USER_EXISTS);
     }
 
     try {
       await this.createUser(registerRequest);
 
       return {
-        message: AUTH_CONSTANTS.MESSAGES.REGISTRATION_SUCCESS,
+        message: AUTH.MESSAGES.REGISTRATION_SUCCESS,
       };
     } catch {
-      throw new BadRequestException(
-        AUTH_CONSTANTS.MESSAGES.USER_CREATION_FAILED,
-      );
+      throw new BadRequestException(AUTH.MESSAGES.USER_CREATION_FAILED);
     }
   }
 

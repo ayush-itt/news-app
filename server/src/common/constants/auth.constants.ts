@@ -1,6 +1,6 @@
-import { SECURITY } from '@/common/constants/security.constants';
+import { SECURITY } from './security.constants';
 
-export const AUTH_CONSTANTS = {
+export const AUTH = {
   COOKIE_NAME: 'access_token',
   COOKIE_OPTIONS: {
     httpOnly: true,

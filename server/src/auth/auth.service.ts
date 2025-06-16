@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { User } from '../database/entities/user.entity';
-import { AUTH_CONSTANTS } from './constants';
+import { AUTH } from '@/common/constants/auth.constants';
 import { AuthResult } from './interfaces/auth-result.interfaces';
 import { RoleEnum } from '../common/enums/roles.enum';
 
@@ -34,13 +34,11 @@ export class AuthService {
 
     const user = await this.validateUserByEmail(email, password);
     if (!user) {
-      throw new UnauthorizedException(
-        AUTH_CONSTANTS.MESSAGES.INVALID_CREDENTIALS,
-      );
+      throw new UnauthorizedException(AUTH.MESSAGES.INVALID_CREDENTIALS);
     }
 
     if (!user.isActive) {
-      throw new UnauthorizedException(AUTH_CONSTANTS.MESSAGES.ACCOUNT_INACTIVE);
+      throw new UnauthorizedException(AUTH.MESSAGES.ACCOUNT_INACTIVE);
     }
 
     return this.generateAuthResult(user);

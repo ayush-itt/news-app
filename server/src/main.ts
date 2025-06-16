@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { json } from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
-import { Constants } from './common/constants';
+import { APP } from './common/constants/app.constants';
 import { AppConfigService } from './config/app-config/app-config.service';
 
 async function bootstrap(): Promise<void> {
@@ -23,11 +23,11 @@ async function bootstrap(): Promise<void> {
         type: 'http',
         in: 'Header',
       },
-      Constants.SWAGGER_ACCESS_TOKEN,
+      APP.SWAGGER_ACCESS_TOKEN,
     )
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup(Constants.APP_SWAGGER_URL, app, document);
+  SwaggerModule.setup(APP.SWAGGER_URL, app, document);
 
   app.use(cookieParser());
   app.use(json());
@@ -47,7 +47,7 @@ async function bootstrap(): Promise<void> {
   await app.listen(SERVER_PORT, () => {
     console.log(`Application is running at http://localhost:${SERVER_PORT}`);
     console.log(
-      `Swagger is running at http://localhost:${SERVER_PORT}/${Constants.APP_SWAGGER_URL}`,
+      `Swagger is running at http://localhost:${SERVER_PORT}/${APP.SWAGGER_URL}`,
     );
   });
 }

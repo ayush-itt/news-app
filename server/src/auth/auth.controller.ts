@@ -20,7 +20,7 @@ import { LogoutResponse } from './dto/logout-response.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Response } from 'express';
-import { AUTH_CONSTANTS } from './constants';
+import { AUTH } from '@/common/constants/auth.constants';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -44,11 +44,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponse> {
     const result = await this.authService.login(loginRequest);
-    res.cookie(AUTH_CONSTANTS.COOKIE_NAME, result.access_token, {
-      ...AUTH_CONSTANTS.COOKIE_OPTIONS,
+    res.cookie(AUTH.COOKIE_NAME, result.access_token, {
+      ...AUTH.COOKIE_OPTIONS,
       secure: process.env.NODE_ENV === 'production',
     });
-    return { message: AUTH_CONSTANTS.MESSAGES.LOGIN_SUCCESS };
+    return { message: AUTH.MESSAGES.LOGIN_SUCCESS };
   }
 
   @ApiOperation({ summary: 'Logout current user' })
@@ -65,10 +65,10 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@Res({ passthrough: true }) res: Response): LogoutResponse {
-    res.clearCookie(AUTH_CONSTANTS.COOKIE_NAME, {
+    res.clearCookie(AUTH.COOKIE_NAME, {
       httpOnly: true,
       sameSite: 'lax',
     });
-    return { message: AUTH_CONSTANTS.MESSAGES.LOGOUT_SUCCESS };
+    return { message: AUTH.MESSAGES.LOGOUT_SUCCESS };
   }
 }

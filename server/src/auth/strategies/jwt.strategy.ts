@@ -5,7 +5,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UsersService } from '@/users/users.service';
 import { User } from '@/database/entities/user.entity';
 import { Request } from 'express';
-import { AUTH_CONSTANTS } from '../constants';
+import { AUTH } from '@/common/constants/auth.constants';
 import { JwtPayload } from '../interfaces/jwt.interfaces';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         (req: Request) => {
           let token: string | null = null;
           if (req && req.cookies) {
-            token = (req.cookies[AUTH_CONSTANTS.COOKIE_NAME] as string) || null;
+            token = (req.cookies[AUTH.COOKIE_NAME] as string) || null;
           }
           return token;
         },
@@ -33,7 +33,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload): Promise<User> {
     const user = await this.usersService.findById(payload.sub);
     if (!user || !user.isActive) {
-      throw new UnauthorizedException(AUTH_CONSTANTS.MESSAGES.USER_NOT_FOUND);
+      throw new UnauthorizedException(AUTH.MESSAGES.USER_NOT_FOUND);
     }
     return user;
   }
