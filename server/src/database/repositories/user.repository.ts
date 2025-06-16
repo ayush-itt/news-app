@@ -2,19 +2,30 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
-import { RegisterDto } from '../../auth/dto/register.dto';
+import { RegisterDto } from '../../users/dto/register.dto';
+import { RoleRepository } from './role.repository';
+import { RoleEnum } from '@/common/enums/roles.enum';
 
 @Injectable()
 export class UserRepository {
   constructor(
     @InjectRepository(User)
     private readonly repository: Repository<User>,
+    private readonly roleRepository: RoleRepository,
   ) {}
 
-  async create(registerDto: RegisterDto, roleId: number = 2): Promise<User> {
+  async create(
+    registerDto: RegisterDto,
+    role: string = RoleEnum.USER,
+  ): Promise<User> {
+    const roleEntity = await this.roleRepository.findByName(role);
+    if (!roleEntity) {
+      throw new Error(`Role '${role}' not found`);
+    }
+
     const user = this.repository.create({
       ...registerDto,
-      roleId,
+      roleId: roleEntity.id,
     });
     return await this.repository.save(user);
   }

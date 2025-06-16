@@ -4,8 +4,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { json } from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
-import { AppConfigService } from './config/app-config/app-config.service';
 import { Constants } from './common/constants';
+import { AppConfigService } from './config/app-config/app-config.service';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -52,4 +52,4 @@ async function bootstrap(): Promise<void> {
   });
 }
 
-bootstrap();
+void bootstrap();

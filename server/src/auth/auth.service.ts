@@ -1,13 +1,7 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
 import { User } from '../database/entities/user.entity';
 import { AUTH_CONSTANTS } from './constants';
 import { AuthResult } from './interfaces/auth-result.interfaces';
@@ -49,32 +43,6 @@ export class AuthService {
     }
 
     return this.generateAuthResult(user);
-  }
-
-  async register(registerDto: RegisterDto): Promise<{ message: string }> {
-    const { username, email } = registerDto;
-
-    // Check if user already exists
-    const userExists = await this.usersService.checkIfUserExists(
-      username,
-      email,
-    );
-
-    if (userExists) {
-      throw new ConflictException(AUTH_CONSTANTS.MESSAGES.USER_EXISTS);
-    }
-
-    try {
-      await this.usersService.createUser(registerDto);
-
-      return {
-        message: AUTH_CONSTANTS.MESSAGES.REGISTRATION_SUCCESS,
-      };
-    } catch {
-      throw new BadRequestException(
-        AUTH_CONSTANTS.MESSAGES.USER_CREATION_FAILED,
-      );
-    }
   }
 
   private generateAuthResult(user: User): AuthResult {

@@ -1,11 +1,17 @@
 import { DataSource } from 'typeorm';
 import { User } from '@/database/entities/user.entity';
-import { UserRepository } from '@/database/repositories';
+import { Role } from '@/database/entities/role.entity';
+import { UserRepository, RoleRepository } from '@/database/repositories';
 import { adminToAdd } from '../data/admin';
+import { RoleEnum } from '@/common/enums/roles.enum';
 
 export class AdminSeeder {
   static async seed(dataSource: DataSource): Promise<void> {
-    const userRepository = new UserRepository(dataSource.getRepository(User));
+    const roleRepository = new RoleRepository(dataSource.getRepository(Role));
+    const userRepository = new UserRepository(
+      dataSource.getRepository(User),
+      roleRepository,
+    );
 
     const existingAdmin = await userRepository.findByUsername(
       adminToAdd.username,
@@ -18,7 +24,7 @@ export class AdminSeeder {
 
     console.log('Seeding admin user...');
 
-    await userRepository.create(adminToAdd, adminToAdd.roleId);
+    await userRepository.create(adminToAdd, RoleEnum.ADMIN);
 
     console.log('Admin user seeded successfully');
   }
