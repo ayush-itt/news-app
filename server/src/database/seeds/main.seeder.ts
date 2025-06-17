@@ -3,7 +3,7 @@ import { RoleSeeder } from './seeder/roles.seeder';
 import { AdminSeeder } from './seeder/admin.seeder';
 import { CategorySeeder } from './seeder/categories.seeder';
 import { ArticleSeeder } from './seeder/articles.seeder';
-import { LikesSeeder } from './seeder/likes.seeder';
+import { UserReactionsSeeder } from './seeder/user-reactions.seeder';
 import { BookmarksSeeder } from './seeder/bookmarks.seeder';
 
 export class MainSeeder {
@@ -14,7 +14,7 @@ export class MainSeeder {
       CategorySeeder,
       AdminSeeder,
       ArticleSeeder,
-      LikesSeeder,
+      UserReactionsSeeder,
       BookmarksSeeder,
     ];
 

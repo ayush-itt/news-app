@@ -4,15 +4,17 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
+  UpdateDateColumn,
   JoinColumn,
   Unique,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Article } from './article.entity';
+import { ReactionType } from '../../common/enums/reaction-type.enum';
 
-@Entity('likes')
+@Entity('user_reactions')
 @Unique(['user', 'article'])
-export class Like {
+export class UserReaction {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -21,6 +23,13 @@ export class Like {
 
   @Column({ name: 'article_id' })
   articleId: number;
+
+  @Column({
+    type: 'enum',
+    enum: ReactionType,
+    name: 'reaction_type',
+  })
+  reactionType: ReactionType;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
@@ -32,4 +41,7 @@ export class Like {
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 }
