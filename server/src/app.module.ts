@@ -7,6 +7,8 @@ import { CategoriesModule } from './categories/categories.module';
 import { ArticlesModule } from './articles/articles.module';
 import { UserReactionsModule } from './user-reactions/user-reactions.module';
 import { UserBookmarksModule } from './user-bookmarks/user-bookmarks.module';
+import { NewsSourcesModule } from './news-sources/news-sources.module';
+import { KeywordsModule } from './keywords/keywords.module';
 import { DatabaseModule } from './database/database.module';
 import { getDatabaseConfig } from './database/database.config';
 import { AppConfigModule } from './config/app-config/app-config.module';
@@ -32,6 +34,8 @@ import { AppConfigService } from './config/app-config/app-config.service';
     ArticlesModule,
     UserReactionsModule,
     UserBookmarksModule,
+    NewsSourcesModule,
+    KeywordsModule,
   ],
 })
 export class AppModule {}
