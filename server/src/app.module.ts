@@ -13,6 +13,8 @@ import { DatabaseModule } from './database/database.module';
 import { getDatabaseConfig } from './database/database.config';
 import { AppConfigModule } from './config/app-config/app-config.module';
 import { AppConfigService } from './config/app-config/app-config.service';
+import { CronModule } from './cron/cron.module';
+import { NewsAggregationModule } from './news-aggregation/news-aggregation.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { AppConfigService } from './config/app-config/app-config.service';
     UserBookmarksModule,
     NewsSourcesModule,
     KeywordsModule,
+    CronModule,
+    NewsAggregationModule,
   ],
 })
 export class AppModule {}
