@@ -8,12 +8,16 @@ import { RegisterDto } from './dto/register.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from '../database/entities/user.entity';
 import { UserRepository } from '../database/repositories';
+import { UserPreferencesService } from '../user-preferences/user-preferences.service';
 import { AUTH } from '@/common/constants/auth.constants';
 import { PAGINATION } from '../common/constants/pagination.constants';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly userPreferencesService: UserPreferencesService,
+  ) {}
 
   async createUser(registerDto: RegisterDto): Promise<User> {
     return await this.userRepository.create(registerDto);
@@ -71,7 +75,13 @@ export class UsersService {
     }
 
     try {
-      await this.createUser(registerRequest);
+      // Create the user
+      const newUser = await this.createUser(registerRequest);
+
+      // Initialize default preferences (all categories set to false/inactive)
+      await this.userPreferencesService.initializeDefaultPreferences(
+        newUser.id,
+      );
 
       return {
         message: AUTH.MESSAGES.REGISTRATION_SUCCESS,

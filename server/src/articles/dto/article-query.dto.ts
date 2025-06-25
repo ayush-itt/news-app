@@ -71,7 +71,7 @@ export class ArticleQueryDto {
   @IsArray()
   @Type(() => Number)
   @IsInt({ each: true })
-  @Transform(({ value }) => {
+  @Transform(({ value }): number[] => {
     if (typeof value === 'string') {
       return value.split(',').map((id) => parseInt(id.trim(), 10));
     }

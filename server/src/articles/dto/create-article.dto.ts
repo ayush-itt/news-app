@@ -78,6 +78,6 @@ export class CreateArticleDto {
   @IsArray()
   @IsInt({ each: true })
   @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+  @Transform(({ value }): number[] => (Array.isArray(value) ? value : [value]))
   categoryIds?: number[];
 }
