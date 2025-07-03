@@ -14,7 +14,7 @@ interface TheNewsApiArticle {
   snippet: string;
   url: string;
   image_url: string | null;
-  published_at: string;
+  published_at: string; // Keep as is - this is the API response format
   source: string;
   categories: string[];
 }
@@ -96,7 +96,7 @@ export class SimpleNewsApiService {
     return await this.newsSourceRepository.findOne({
       where: {
         type: NewsSourceType.THENEWSAPI,
-        is_active: true,
+        isActive: true,
       },
     });
   }
@@ -104,7 +104,7 @@ export class SimpleNewsApiService {
   private async fetchFromTheNewsApi(
     newsSource: NewsSource,
   ): Promise<TheNewsApiArticle[]> {
-    const apiKey = newsSource.api_key_env || this.API_KEY;
+    const apiKey = newsSource.apiKeyEnv || this.API_KEY;
     const allArticles: TheNewsApiArticle[] = [];
 
     console.log(
@@ -116,7 +116,7 @@ export class SimpleNewsApiService {
       for (let page = 1; page <= 5; page++) {
         console.log(`[SimpleNewsApiService] Fetching page ${page}...`);
 
-        const url = `${newsSource.base_url}?api_token=${apiKey}&locale=us&language=en&limit=3&page=${page}`;
+        const url = `${newsSource.baseUrl}?api_token=${apiKey}&locale=us&language=en&limit=3&page=${page}`;
 
         const response = await fetch(url);
         const responseData = (await response.json()) as Record<
@@ -173,8 +173,8 @@ export class SimpleNewsApiService {
     errorMessage: string | null,
   ): Promise<void> {
     await this.newsSourceRepository.update(newsSource.id, {
-      last_fetch_at: new Date(),
-      last_error: errorMessage,
+      lastFetchAt: new Date(),
+      lastError: errorMessage,
     });
   }
 
@@ -191,7 +191,7 @@ export class SimpleNewsApiService {
     }
 
     const existingArticle = await this.articleRepository.findOne({
-      where: { original_url: apiArticle.url },
+      where: { originalUrl: apiArticle.url },
     });
 
     if (existingArticle) {
@@ -207,8 +207,8 @@ export class SimpleNewsApiService {
     article.content = this.truncateString(apiArticle.snippet, 2000);
     article.author = null; // TheNewsAPI doesn't provide author
     article.source = this.truncateString(apiArticle.source, 200);
-    article.original_url = this.truncateString(apiArticle.url, 1000);
-    article.published_at = new Date(apiArticle.published_at);
+    article.originalUrl = this.truncateString(apiArticle.url, 1000);
+    article.publishedAt = new Date(apiArticle.published_at);
 
     // Map categories based on API categories and our available categories
     article.categories = this.mapCategories(apiArticle, availableCategories);

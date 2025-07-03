@@ -40,7 +40,7 @@ export class CreateNewsSourceDto {
   @IsUrl({}, { message: 'Base URL must be a valid URL' })
   @IsNotEmpty({ message: 'Base URL is required' })
   @MaxLength(255, { message: 'Base URL must not exceed 255 characters' })
-  base_url: string;
+  baseUrl: string;
 
   @ApiPropertyOptional({
     description: 'Environment variable name for API key',
@@ -52,7 +52,7 @@ export class CreateNewsSourceDto {
   @MaxLength(100, {
     message: 'API key environment variable name must not exceed 100 characters',
   })
-  api_key_env?: string;
+  apiKeyEnv?: string;
 
   @ApiPropertyOptional({
     description: 'Whether the news source is active',
@@ -61,5 +61,5 @@ export class CreateNewsSourceDto {
   })
   @IsOptional()
   @IsBoolean()
-  is_active?: boolean;
+  isActive?: boolean;
 }

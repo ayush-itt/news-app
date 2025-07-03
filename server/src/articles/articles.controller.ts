@@ -12,7 +12,6 @@ import {
   ApiResponse,
   ApiParam,
   ApiQuery,
-  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ArticlesService } from './articles.service';
 import {
@@ -56,7 +55,6 @@ export class ArticlesController {
 
   @Get()
   @Auth()
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all articles with filtering and pagination' })
   @ApiResponse({
     status: 200,
@@ -121,7 +119,6 @@ export class ArticlesController {
 
   @Get('search')
   @Auth()
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Search articles by term' })
   @ApiResponse({
     status: 200,
@@ -165,7 +162,6 @@ export class ArticlesController {
 
   @Get('category/:categoryId')
   @Auth()
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get articles by category' })
   @ApiResponse({
     status: 200,
@@ -204,7 +200,6 @@ export class ArticlesController {
 
   @Get(':id')
   @Auth()
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get article by ID' })
   @ApiResponse({
     status: 200,

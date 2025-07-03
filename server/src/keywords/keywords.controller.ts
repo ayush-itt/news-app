@@ -14,7 +14,6 @@ import {
   ApiOperation,
   ApiResponse,
   ApiParam,
-  ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
 import { KeywordsService } from './keywords.service';
@@ -27,7 +26,6 @@ import { Keyword } from '../database/entities/keyword.entity';
 @ApiTags('Keywords')
 @Controller('keywords')
 @Auth()
-@ApiBearerAuth()
 export class KeywordsController {
   constructor(private readonly keywordsService: KeywordsService) {}
 

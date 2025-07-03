@@ -5,8 +5,10 @@ import {
   CreateDateColumn,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { Category } from './category.entity';
+import { Notification as NotificationEntity } from './notification.entity';
 
 @Entity('articles')
 export class Article {
@@ -25,14 +27,29 @@ export class Article {
   @Column({ type: 'varchar', length: 200, nullable: true })
   source: string;
 
-  @Column({ type: 'varchar', length: 1000, nullable: false })
-  original_url: string;
+  @Column({
+    type: 'varchar',
+    length: 1000,
+    nullable: false,
+    name: 'original_url',
+  })
+  originalUrl: string;
 
-  @Column({ type: 'timestamp', nullable: false })
-  published_at: Date;
+  @Column({ type: 'timestamp', nullable: false, name: 'published_at' })
+  publishedAt: Date;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  scraped_at: Date;
+  @CreateDateColumn({ type: 'timestamp', name: 'scraped_at' })
+  scrapedAt: Date;
+
+  @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
+  createdAt: Date;
+
+  @Column({
+    type: 'boolean',
+    default: false,
+    name: 'processed_for_notifications',
+  })
+  processedForNotifications: boolean;
 
   @ManyToMany(() => Category, (category) => category.articles, {
     cascade: true,
@@ -50,4 +67,7 @@ export class Article {
     },
   })
   categories: Category[];
+
+  @OneToMany(() => NotificationEntity, (notification) => notification.article)
+  notifications: NotificationEntity[];
 }

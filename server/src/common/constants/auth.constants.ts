@@ -1,12 +1,4 @@
-import { SECURITY } from './security.constants';
-
 export const AUTH = {
-  COOKIE_NAME: 'access_token',
-  COOKIE_OPTIONS: {
-    httpOnly: true,
-    sameSite: 'lax' as const,
-    maxAge: SECURITY.COOKIE_MAX_AGE,
-  },
   JWT_PAYLOAD: {
     ISSUER: 'news-app',
     AUDIENCE: 'news-app-users',

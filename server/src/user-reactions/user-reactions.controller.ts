@@ -4,20 +4,12 @@ import {
   Get,
   Param,
   Body,
-  UseGuards,
   HttpCode,
   HttpStatus,
   ParseIntPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { UserReactionsService } from './user-reactions.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../database/entities/user.entity';
 import {
@@ -26,11 +18,11 @@ import {
   ReactionStatsDto,
   ReactionStatusDto,
 } from './dto';
+import { Auth } from '@/auth/decorators';
 
 @ApiTags('User Reactions')
 @Controller('user-reactions')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@Auth()
 export class UserReactionsController {
   constructor(private readonly userReactionsService: UserReactionsService) {}
 

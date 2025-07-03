@@ -27,24 +27,24 @@ export class NewsSource {
   })
   type: NewsSourceType;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
-  base_url: string;
+  @Column({ type: 'varchar', length: 255, nullable: false, name: 'base_url' })
+  baseUrl: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  api_key_env: string;
+  @Column({ type: 'varchar', length: 100, nullable: true, name: 'api_key_env' })
+  apiKeyEnv: string;
 
-  @Column({ type: 'boolean', default: true })
-  is_active: boolean;
+  @Column({ type: 'boolean', default: true, name: 'is_active' })
+  isActive: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
-  last_fetch_at: Date;
+  @Column({ type: 'timestamp', nullable: true, name: 'last_fetch_at' })
+  lastFetchAt: Date;
 
-  @Column({ type: 'text', nullable: true })
-  last_error: string;
+  @Column({ type: 'text', nullable: true, name: 'last_error' })
+  lastError: string;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 }

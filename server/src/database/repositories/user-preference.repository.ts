@@ -10,7 +10,7 @@ export class UserPreferenceRepository extends Repository<UserPreference> {
 
   async findByUserId(userId: number): Promise<UserPreference[]> {
     return this.find({
-      where: { user_id: userId },
+      where: { userId: userId },
       relations: ['category'],
       order: { category: { name: 'ASC' } },
     });
@@ -21,7 +21,7 @@ export class UserPreferenceRepository extends Repository<UserPreference> {
     categoryId: number,
   ): Promise<UserPreference | null> {
     return this.findOne({
-      where: { user_id: userId, category_id: categoryId },
+      where: { userId: userId, categoryId: categoryId },
       relations: ['category'],
     });
   }
@@ -37,14 +37,14 @@ export class UserPreferenceRepository extends Repository<UserPreference> {
     );
 
     if (existingPreference) {
-      existingPreference.is_subscribed = isSubscribed;
+      existingPreference.isSubscribed = isSubscribed;
       return this.save(existingPreference);
     }
 
     const newPreference = this.create({
-      user_id: userId,
-      category_id: categoryId,
-      is_subscribed: isSubscribed,
+      userId: userId,
+      categoryId: categoryId,
+      isSubscribed: isSubscribed,
     });
 
     return this.save(newPreference);

@@ -16,6 +16,7 @@ import { AppConfigService } from './config/app-config/app-config.service';
 import { CronModule } from './cron/cron.module';
 import { NewsAggregationModule } from './news-aggregation/news-aggregation.module';
 import { UserPreferencesModule } from './user-preferences/user-preferences.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { UserPreferencesModule } from './user-preferences/user-preferences.modul
     CronModule,
     NewsAggregationModule,
     UserPreferencesModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

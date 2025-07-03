@@ -18,15 +18,15 @@ export class KeywordRepository {
   async findAll(): Promise<Keyword[]> {
     return await this.repository.find({
       relations: ['user', 'category'],
-      order: { created_at: 'DESC' },
+      order: { createdAt: 'DESC' },
     });
   }
 
   async findByUserId(userId: number): Promise<Keyword[]> {
     return await this.repository.find({
-      where: { user_id: userId },
+      where: { userId: userId },
       relations: ['category'],
-      order: { created_at: 'DESC' },
+      order: { createdAt: 'DESC' },
     });
   }
 
@@ -35,8 +35,8 @@ export class KeywordRepository {
     categoryId: number,
   ): Promise<Keyword[]> {
     return await this.repository.find({
-      where: { user_id: userId, category_id: categoryId },
-      order: { created_at: 'DESC' },
+      where: { userId: userId, categoryId: categoryId },
+      order: { createdAt: 'DESC' },
     });
   }
 
@@ -52,7 +52,7 @@ export class KeywordRepository {
     categoryId: number,
   ): Promise<Keyword[]> {
     return await this.repository.find({
-      where: { keyword, category_id: categoryId },
+      where: { keyword, categoryId: categoryId },
       relations: ['user'],
     });
   }
@@ -78,8 +78,8 @@ export class KeywordRepository {
   ): Promise<boolean> {
     const query = this.repository
       .createQueryBuilder('keyword')
-      .where('keyword.user_id = :userId', { userId })
-      .andWhere('keyword.category_id = :categoryId', { categoryId })
+      .where('keyword.userId = :userId', { userId })
+      .andWhere('keyword.categoryId = :categoryId', { categoryId })
       .andWhere('keyword.keyword = :keyword', { keyword });
 
     if (excludeId) {
@@ -92,15 +92,22 @@ export class KeywordRepository {
 
   async getKeywordsByCategory(categoryId: number): Promise<Keyword[]> {
     return await this.repository.find({
-      where: { category_id: categoryId, is_active: true },
+      where: { categoryId: categoryId, isActive: true },
       relations: ['user'],
-      order: { created_at: 'DESC' },
+      order: { createdAt: 'DESC' },
     });
   }
 
   async getUserKeywordCount(userId: number): Promise<number> {
     return await this.repository.count({
-      where: { user_id: userId, is_active: true },
+      where: { userId: userId, isActive: true },
+    });
+  }
+
+  async findActiveKeywords(): Promise<Keyword[]> {
+    return await this.repository.find({
+      where: { isActive: true },
+      relations: ['user', 'category'],
     });
   }
 }

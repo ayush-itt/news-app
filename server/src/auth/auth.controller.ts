@@ -5,22 +5,13 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  Res,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
-import { AuthResponse } from './dto/auth-response.dto';
-import { LogoutResponse } from './dto/logout-response.dto';
+import { LoginDto, LoginResponse, LogoutResponse } from './dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { Response } from 'express';
 import { AUTH } from '@/common/constants/auth.constants';
+import { Auth } from './decorators';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -31,6 +22,7 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User successfully logged in',
+    type: LoginResponse,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -39,16 +31,13 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(
-    @Body() loginRequest: LoginDto,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<AuthResponse> {
+  async login(@Body() loginRequest: LoginDto): Promise<LoginResponse> {
     const result = await this.authService.login(loginRequest);
-    res.cookie(AUTH.COOKIE_NAME, result.access_token, {
-      ...AUTH.COOKIE_OPTIONS,
-      secure: process.env.NODE_ENV === 'production',
-    });
-    return { message: AUTH.MESSAGES.LOGIN_SUCCESS };
+    return {
+      message: AUTH.MESSAGES.LOGIN_SUCCESS,
+      accessToken: result.accessToken,
+      user: result.user,
+    };
   }
 
   @ApiOperation({ summary: 'Logout current user' })
@@ -60,15 +49,10 @@ export class AuthController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'User not authenticated',
   })
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@Res({ passthrough: true }) res: Response): LogoutResponse {
-    res.clearCookie(AUTH.COOKIE_NAME, {
-      httpOnly: true,
-      sameSite: 'lax',
-    });
+  logout(): LogoutResponse {
     return { message: AUTH.MESSAGES.LOGOUT_SUCCESS };
   }
 }

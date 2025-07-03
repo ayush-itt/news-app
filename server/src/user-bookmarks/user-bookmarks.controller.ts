@@ -4,28 +4,20 @@ import {
   Delete,
   Get,
   Param,
-  UseGuards,
   HttpCode,
   HttpStatus,
   ParseIntPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { UserBookmarksService } from './user-bookmarks.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../database/entities/user.entity';
 import { BookmarkResponseDto, BookmarkStatusDto } from './dto';
+import { Auth } from '@/auth/decorators';
 
 @ApiTags('User Bookmarks')
 @Controller('user-bookmarks')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@Auth()
 export class UserBookmarksController {
   constructor(private readonly userBookmarksService: UserBookmarksService) {}
 

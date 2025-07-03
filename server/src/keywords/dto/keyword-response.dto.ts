@@ -6,41 +6,41 @@ export class KeywordResponseDto {
   id: number;
 
   @ApiProperty({ description: 'User ID who owns the keyword', example: 1 })
-  user_id: number;
+  userId: number;
 
   @ApiProperty({ description: 'Category ID for the keyword', example: 1 })
-  category_id: number;
+  categoryId: number;
 
   @ApiProperty({ description: 'The keyword text', example: 'technology' })
   keyword: string;
 
   @ApiProperty({ description: 'Whether the keyword is active', example: true })
-  is_active: boolean;
+  isActive: boolean;
 
   @ApiProperty({
     description: 'Creation timestamp',
     example: '2025-06-19T10:30:00.000Z',
   })
-  created_at: Date;
+  createdAt: Date;
 
   @ApiProperty({
     description: 'Category name',
     example: 'Technology',
     required: false,
   })
-  category_name?: string;
+  categoryName?: string;
 
   static fromEntity(keyword: Keyword): KeywordResponseDto {
     const dto = new KeywordResponseDto();
     dto.id = keyword.id;
-    dto.user_id = keyword.user_id;
-    dto.category_id = keyword.category_id;
+    dto.userId = keyword.userId;
+    dto.categoryId = keyword.categoryId;
     dto.keyword = keyword.keyword;
-    dto.is_active = keyword.is_active;
-    dto.created_at = keyword.created_at;
+    dto.isActive = keyword.isActive;
+    dto.createdAt = keyword.createdAt;
 
     if (keyword.category) {
-      dto.category_name = keyword.category.name;
+      dto.categoryName = keyword.category.name;
     }
 
     return dto;

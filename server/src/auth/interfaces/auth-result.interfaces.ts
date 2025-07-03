@@ -1,5 +1,5 @@
 export interface AuthResult {
-  access_token: string;
+  accessToken: string;
   user: {
     id: number;
     username: string;

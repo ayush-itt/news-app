@@ -12,25 +12,25 @@ import { User } from './user.entity';
 import { Category } from './category.entity';
 
 @Entity('user_preferences')
-@Index('unique_user_category', ['user_id', 'category_id'], { unique: true })
+@Index('unique_user_category', ['userId', 'categoryId'], { unique: true })
 export class UserPreference {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int', nullable: false })
-  user_id: number;
+  @Column({ type: 'int', nullable: false, name: 'user_id' })
+  userId: number;
 
-  @Column({ type: 'int', nullable: false })
-  category_id: number;
+  @Column({ type: 'int', nullable: false, name: 'category_id' })
+  categoryId: number;
 
-  @Column({ type: 'boolean', default: true })
-  is_subscribed: boolean;
+  @Column({ type: 'boolean', default: true, name: 'is_subscribed' })
+  isSubscribed: boolean;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 
   // Relationships
   @ManyToOne(() => User, { onDelete: 'CASCADE' })

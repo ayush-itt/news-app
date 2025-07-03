@@ -17,14 +17,14 @@ export class NewsSourceRepository {
 
   async findAll(): Promise<NewsSource[]> {
     return await this.repository.find({
-      order: { created_at: 'ASC' },
+      order: { createdAt: 'ASC' },
     });
   }
 
   async findActive(): Promise<NewsSource[]> {
     return await this.repository.find({
-      where: { is_active: true },
-      order: { created_at: 'ASC' },
+      where: { isActive: true },
+      order: { createdAt: 'ASC' },
     });
   }
 
@@ -43,7 +43,7 @@ export class NewsSourceRepository {
   async findByType(type: NewsSourceType): Promise<NewsSource[]> {
     return await this.repository.find({
       where: { type },
-      order: { created_at: 'ASC' },
+      order: { createdAt: 'ASC' },
     });
   }
 
@@ -57,8 +57,8 @@ export class NewsSourceRepository {
 
   async updateLastFetch(id: number): Promise<void> {
     await this.repository.update(id, {
-      last_fetch_at: new Date(),
-      last_error: null,
+      lastFetchAt: new Date(),
+      lastError: null,
     });
   }
 
@@ -82,7 +82,7 @@ export class NewsSourceRepository {
 
   async getActiveSourcesCount(): Promise<number> {
     return await this.repository.count({
-      where: { is_active: true },
+      where: { isActive: true },
     });
   }
 
@@ -94,10 +94,10 @@ export class NewsSourceRepository {
     const [total, active, inactive] = await Promise.all([
       this.repository.count(),
       this.repository.count({
-        where: { is_active: true },
+        where: { isActive: true },
       }),
       this.repository.count({
-        where: { is_active: false },
+        where: { isActive: false },
       }),
     ]);
 

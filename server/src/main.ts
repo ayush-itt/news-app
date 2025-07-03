@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { json } from 'body-parser';
-import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { APP } from './common/constants/app.constants';
 import { AppConfigService } from './config/app-config/app-config.service';
@@ -29,7 +28,6 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup(APP.SWAGGER_URL, app, document);
 
-  app.use(cookieParser());
   app.use(json());
   app.useGlobalPipes(
     new ValidationPipe({
@@ -39,9 +37,9 @@ async function bootstrap(): Promise<void> {
     }),
   );
   app.enableCors({
-    secure: false,
     origin: '*',
-    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   await app.listen(SERVER_PORT, () => {

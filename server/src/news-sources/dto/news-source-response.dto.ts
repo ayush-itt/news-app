@@ -22,59 +22,59 @@ export class NewsSourceResponseDto {
     description: 'Base URL of the news API',
     example: 'https://newsapi.org/v2',
   })
-  base_url: string;
+  baseUrl: string;
 
   @ApiProperty({
     description: 'Environment variable name for API key',
     example: 'NEWSAPI_KEY',
     nullable: true,
   })
-  api_key_env: string | null;
+  apiKeyEnv: string | null;
 
   @ApiProperty({
     description: 'Whether the news source is active',
     example: true,
   })
-  is_active: boolean;
+  isActive: boolean;
 
   @ApiProperty({
     description: 'Last successful fetch timestamp',
     example: '2025-06-19T06:00:00.000Z',
     nullable: true,
   })
-  last_fetch_at: Date | null;
+  lastFetchAt: Date | null;
 
   @ApiProperty({
     description: 'Last error message',
     example: null,
     nullable: true,
   })
-  last_error: string | null;
+  lastError: string | null;
 
   @ApiProperty({
     description: 'Creation timestamp',
     example: '2025-06-01T00:00:00.000Z',
   })
-  created_at: Date;
+  createdAt: Date;
 
   @ApiProperty({
     description: 'Last update timestamp',
     example: '2025-06-19T10:30:00.000Z',
   })
-  updated_at: Date;
+  updatedAt: Date;
 
   static fromEntity(newsSource: NewsSource): NewsSourceResponseDto {
     const dto = new NewsSourceResponseDto();
     dto.id = newsSource.id;
     dto.name = newsSource.name;
     dto.type = newsSource.type;
-    dto.base_url = newsSource.base_url;
-    dto.api_key_env = newsSource.api_key_env;
-    dto.is_active = newsSource.is_active;
-    dto.last_fetch_at = newsSource.last_fetch_at;
-    dto.last_error = newsSource.last_error;
-    dto.created_at = newsSource.created_at;
-    dto.updated_at = newsSource.updated_at;
+    dto.baseUrl = newsSource.baseUrl;
+    dto.apiKeyEnv = newsSource.apiKeyEnv;
+    dto.isActive = newsSource.isActive;
+    dto.lastFetchAt = newsSource.lastFetchAt;
+    dto.lastError = newsSource.lastError;
+    dto.createdAt = newsSource.createdAt;
+    dto.updatedAt = newsSource.updatedAt;
     return dto;
   }
 

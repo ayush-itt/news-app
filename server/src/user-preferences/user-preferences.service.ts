@@ -60,4 +60,11 @@ export class UserPreferencesService {
       preferences,
     );
   }
+
+  async getSubscribedUserPreferences(): Promise<UserPreference[]> {
+    return this.userPreferenceRepository.find({
+      where: { isSubscribed: true },
+      relations: ['user', 'category'],
+    });
+  }
 }

@@ -6,24 +6,15 @@ import {
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { NewsSourcesService } from './news-sources.service';
 import { UpdateNewsSourceDto, NewsSourceResponseDto } from './dto';
-import { Auth } from '../auth/decorators/auth.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '../common/enums/roles.enum';
 
 @ApiTags('News Sources')
 @Controller('news-sources')
-@Auth()
 @Roles(RoleEnum.ADMIN)
-@ApiBearerAuth()
 export class NewsSourcesController {
   constructor(private readonly newsSourcesService: NewsSourcesService) {}
 

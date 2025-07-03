@@ -41,7 +41,7 @@ export class KeywordsService {
     try {
       const keyword = await this.keywordRepository.create({
         ...createDto,
-        user_id: userId,
+        userId: userId,
         keyword: createDto.keyword.toLowerCase().trim(),
       });
 
@@ -88,7 +88,7 @@ export class KeywordsService {
     const keyword = await this.findKeywordById(id);
 
     // Check if user owns this keyword
-    if (keyword.user_id !== userId) {
+    if (keyword.userId !== userId) {
       throw new ForbiddenException('You can only update your own keywords');
     }
 
@@ -98,7 +98,7 @@ export class KeywordsService {
       const existingKeyword =
         await this.keywordRepository.existsByUserCategoryKeyword(
           userId,
-          keyword.category_id,
+          keyword.categoryId,
           trimmedKeyword,
           id, // Exclude current keyword
         );
@@ -124,7 +124,7 @@ export class KeywordsService {
     const keyword = await this.findKeywordById(id);
 
     // Check if user owns this keyword
-    if (keyword.user_id !== userId) {
+    if (keyword.userId !== userId) {
       throw new ForbiddenException('You can only delete your own keywords');
     }
 
@@ -138,12 +138,12 @@ export class KeywordsService {
     const keyword = await this.findKeywordById(id);
 
     // Check if user owns this keyword
-    if (keyword.user_id !== userId) {
+    if (keyword.userId !== userId) {
       throw new ForbiddenException('You can only modify your own keywords');
     }
 
     const updatedKeyword = await this.keywordRepository.update(id, {
-      is_active: !keyword.is_active,
+      isActive: !keyword.isActive,
     });
 
     if (!updatedKeyword) {
@@ -162,5 +162,9 @@ export class KeywordsService {
     await this.categoriesService.getCategoryById(categoryId);
 
     return await this.keywordRepository.getKeywordsByCategory(categoryId);
+  }
+
+  async getActiveKeywords(): Promise<Keyword[]> {
+    return await this.keywordRepository.findActiveKeywords();
   }
 }

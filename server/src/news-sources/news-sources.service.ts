@@ -99,7 +99,7 @@ export class NewsSourcesService {
   async toggleSourceActive(id: number): Promise<NewsSource> {
     const newsSource = await this.findNewsSourceById(id);
     const updatedSource = await this.newsSourceRepository.update(id, {
-      is_active: !newsSource.is_active,
+      isActive: !newsSource.isActive,
     });
 
     if (!updatedSource) {
@@ -126,13 +126,13 @@ export class NewsSourcesService {
   }> {
     const source = await this.findNewsSourceById(id);
 
-    const isHealthy = source.is_active && !source.last_error;
+    const isHealthy = source.isActive && !source.lastError;
 
     return {
       id: source.id,
       name: source.name,
-      lastFetchAt: source.last_fetch_at,
-      lastError: source.last_error,
+      lastFetchAt: source.lastFetchAt,
+      lastError: source.lastError,
       isHealthy,
     };
   }

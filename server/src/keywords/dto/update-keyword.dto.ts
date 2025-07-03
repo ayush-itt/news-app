@@ -26,5 +26,5 @@ export class UpdateKeywordDto {
   })
   @IsOptional()
   @IsBoolean()
-  is_active?: boolean;
+  isActive?: boolean;
 }

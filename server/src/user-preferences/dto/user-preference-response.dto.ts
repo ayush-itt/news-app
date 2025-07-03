@@ -42,11 +42,11 @@ export class UserPreferenceResponseDto {
   static fromEntity(preference: UserPreference): UserPreferenceResponseDto {
     const response = new UserPreferenceResponseDto();
     response.id = preference.id;
-    response.userId = preference.user_id;
-    response.categoryId = preference.category_id;
-    response.isSubscribed = preference.is_subscribed;
-    response.createdAt = preference.created_at;
-    response.updatedAt = preference.updated_at;
+    response.userId = preference.userId;
+    response.categoryId = preference.categoryId;
+    response.isSubscribed = preference.isSubscribed;
+    response.createdAt = preference.createdAt;
+    response.updatedAt = preference.updatedAt;
 
     if (preference.category) {
       response.category = {

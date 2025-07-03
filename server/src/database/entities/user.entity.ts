@@ -8,9 +8,11 @@ import {
   JoinColumn,
   BeforeInsert,
   BeforeUpdate,
+  OneToMany,
 } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Role } from './role.entity';
+import { Notification as NotificationEntity } from './notification.entity';
 
 @Entity('users')
 export class User {
@@ -45,6 +47,9 @@ export class User {
   @ManyToOne(() => Role)
   @JoinColumn({ name: 'role_id' })
   role: Role;
+
+  @OneToMany(() => NotificationEntity, (notification) => notification.user)
+  notifications: NotificationEntity[];
 
   // Password hashing hooks
   @BeforeInsert()

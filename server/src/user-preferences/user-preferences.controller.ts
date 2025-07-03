@@ -5,26 +5,23 @@ import {
   Body,
   Param,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiParam,
-  ApiBearerAuth,
   ApiBody,
 } from '@nestjs/swagger';
 import { UserPreferencesService } from './user-preferences.service';
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { GetUser } from '@/auth/decorators/get-user.decorator';
 import { User } from '@/database/entities/user.entity';
 import { UpdateUserPreferenceDto, UserPreferenceResponseDto } from './dto';
+import { Auth } from '@/auth/decorators';
 
 @ApiTags('User Preferences')
 @Controller('user-preferences')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@Auth()
 export class UserPreferencesController {
   constructor(
     private readonly userPreferencesService: UserPreferencesService,

@@ -25,7 +25,7 @@ export class ArticlesService {
   async createArticle(createArticleDto: CreateArticleDto): Promise<Article> {
     // Check if article already exists by URL
     const existsByUrl = await this.articleRepository.existsByUrl(
-      createArticleDto.original_url,
+      createArticleDto.originalUrl,
     );
     if (existsByUrl) {
       throw new ConflictException('Article with this URL already exists');
@@ -42,8 +42,8 @@ export class ArticlesService {
       content: createArticleDto.content,
       author: createArticleDto.author,
       source: createArticleDto.source,
-      original_url: createArticleDto.original_url,
-      published_at: new Date(createArticleDto.published_at),
+      originalUrl: createArticleDto.originalUrl,
+      publishedAt: new Date(createArticleDto.publishedAt),
     };
 
     const article = this.articleRepository.create(transformedData);
@@ -108,11 +108,11 @@ export class ArticlesService {
 
     // Check for URL conflicts if URL is being updated
     if (
-      updateArticleDto.original_url &&
-      updateArticleDto.original_url !== existingArticle.original_url
+      updateArticleDto.originalUrl &&
+      updateArticleDto.originalUrl !== existingArticle.originalUrl
     ) {
       const existsByUrl = await this.articleRepository.existsByUrl(
-        updateArticleDto.original_url,
+        updateArticleDto.originalUrl,
       );
       if (existsByUrl) {
         throw new ConflictException(
@@ -137,10 +137,10 @@ export class ArticlesService {
       updateFields.author = updateArticleDto.author;
     if (updateArticleDto.source !== undefined)
       updateFields.source = updateArticleDto.source;
-    if (updateArticleDto.original_url !== undefined)
-      updateFields.original_url = updateArticleDto.original_url;
-    if (updateArticleDto.published_at !== undefined) {
-      updateFields.published_at = new Date(updateArticleDto.published_at);
+    if (updateArticleDto.originalUrl !== undefined)
+      updateFields.originalUrl = updateArticleDto.originalUrl;
+    if (updateArticleDto.publishedAt !== undefined) {
+      updateFields.publishedAt = new Date(updateArticleDto.publishedAt);
     }
 
     // Update the article
@@ -225,5 +225,13 @@ export class ArticlesService {
         `Categories with IDs ${inactiveIds.join(', ')} are inactive`,
       );
     }
+  }
+
+  async getUnprocessedArticles(): Promise<Article[]> {
+    return this.articleRepository.findUnprocessedArticles();
+  }
+
+  async markArticlesAsProcessed(articleIds: number[]): Promise<void> {
+    await this.articleRepository.markArticlesAsProcessed(articleIds);
   }
 }

@@ -24,5 +24,5 @@ export class UpdateNewsSourceDto {
   @MaxLength(100, {
     message: 'API key environment variable name must not exceed 100 characters',
   })
-  api_key_env?: string;
+  apiKeyEnv?: string;
 }

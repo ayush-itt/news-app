@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
+import { DataSource, Repository, SelectQueryBuilder, In } from 'typeorm';
 import { Article } from '../entities/article.entity';
 import { CreateArticleDto } from '@/articles/dto/create-article.dto';
 import { UpdateArticleDto } from '@/articles/dto/update-article.dto';
@@ -34,7 +34,7 @@ export class ArticleRepository extends Repository<Article> {
     const data = await queryBuilder
       .skip(skip)
       .take(limit)
-      .orderBy('article.published_at', 'DESC')
+      .orderBy('article.publishedAt', 'DESC')
       .getMany();
 
     return {
@@ -68,7 +68,7 @@ export class ArticleRepository extends Repository<Article> {
 
   async existsByUrl(originalUrl: string): Promise<boolean> {
     const count = await this.count({
-      where: { original_url: originalUrl },
+      where: { originalUrl: originalUrl },
     });
     return count > 0;
   }
@@ -124,17 +124,31 @@ export class ArticleRepository extends Repository<Article> {
     }
 
     if (filters.publishedAfter) {
-      queryBuilder.andWhere('article.published_at >= :publishedAfter', {
+      queryBuilder.andWhere('article.publishedAt >= :publishedAfter', {
         publishedAfter: filters.publishedAfter,
       });
     }
 
     if (filters.publishedBefore) {
-      queryBuilder.andWhere('article.published_at <= :publishedBefore', {
+      queryBuilder.andWhere('article.publishedAt <= :publishedBefore', {
         publishedBefore: filters.publishedBefore,
       });
     }
 
     return queryBuilder;
+  }
+
+  async findUnprocessedArticles(): Promise<Article[]> {
+    return this.find({
+      where: { processedForNotifications: false },
+      relations: ['categories'],
+    });
+  }
+
+  async markArticlesAsProcessed(articleIds: number[]): Promise<void> {
+    await this.update(
+      { id: In(articleIds) },
+      { processedForNotifications: true },
+    );
   }
 }
