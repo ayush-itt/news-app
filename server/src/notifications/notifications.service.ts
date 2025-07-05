@@ -99,4 +99,8 @@ export class NotificationsService {
   ): Promise<Notification[]> {
     return await this.notificationRepository.saveNotifications(notifications);
   }
+
+  async markAsEmailed(notificationIds: number[]): Promise<void> {
+    await this.notificationRepository.markAsEmailed(notificationIds);
+  }
 }

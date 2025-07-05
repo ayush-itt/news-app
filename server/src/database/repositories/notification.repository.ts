@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Notification } from '../entities/notification.entity';
 
 @Injectable()
@@ -88,5 +88,16 @@ export class NotificationRepository {
     notifications: Partial<Notification>[],
   ): Promise<Notification[]> {
     return this.repository.save(notifications);
+  }
+
+  async markAsEmailed(notificationIds: number[]): Promise<void> {
+    if (notificationIds.length === 0) {
+      return;
+    }
+
+    await this.repository.update(
+      { id: In(notificationIds) },
+      { isEmailed: true },
+    );
   }
 }

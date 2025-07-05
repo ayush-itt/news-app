@@ -50,6 +50,35 @@ export class AppConfigService {
     return this.getValue('JWT_EXPIRES_IN', false) || '7d';
   }
 
+  // Email configuration methods
+  public getMailHost(): string {
+    return this.getValue('MAIL_HOST');
+  }
+
+  public getMailPort(): number {
+    return Number(this.getValue('MAIL_PORT'));
+  }
+
+  public getMailSecure(): boolean {
+    return this.getValue('MAIL_SECURE', false) === 'true';
+  }
+
+  public getMailUser(): string {
+    return this.getValue('MAIL_USER');
+  }
+
+  public getMailPassword(): string {
+    return this.getValue('MAIL_PASS');
+  }
+
+  public getMailFromName(): string {
+    return this.getValue('MAIL_FROM_NAME', false) || 'News Aggregator';
+  }
+
+  public getMailFromAddress(): string {
+    return this.getValue('MAIL_FROM_ADDRESS');
+  }
+
   private getValue(key: string, throwOnMissing = true): string {
     const value = this.configService.get<string>(key);
 

@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Put,
+  Post,
   Param,
   Query,
   ParseIntPipe,
@@ -14,6 +15,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
+import { EmailService } from '@/email/email.service';
 import { GetUser } from '@/auth/decorators/get-user.decorator';
 import { User } from '@/database/entities/user.entity';
 import {
@@ -27,7 +29,10 @@ import { Auth } from '@/auth/decorators';
 @Controller('notifications')
 @Auth()
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(
+    private readonly notificationsService: NotificationsService,
+    private readonly emailService: EmailService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get user notifications with pagination' })
@@ -115,5 +120,57 @@ export class NotificationsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async markAllAsRead(@GetUser() user: User): Promise<{ count: number }> {
     return this.notificationsService.markAllNotificationsAsRead(user.id);
+  }
+
+  @Post('test-email')
+  @ApiOperation({
+    summary: 'Test email notification (Development only)',
+    description: 'Sends a test email to verify email configuration',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Test email sent successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        message: { type: 'string', example: 'Test email sent successfully' },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async sendTestEmail(
+    @GetUser() user: User,
+  ): Promise<{ success: boolean; message: string }> {
+    const testEmailData = {
+      userId: user.id,
+      userEmail: user.email,
+      userName: user.username,
+      articles: [
+        {
+          id: 1,
+          title: 'Test Article: Breaking News in Technology',
+          url: 'https://example.com/test-article-1',
+          category: 'Technology',
+          keyword: 'AI',
+        },
+        {
+          id: 2,
+          title: 'Test Article: Sports Update',
+          url: 'https://example.com/test-article-2',
+          category: 'Sports',
+        },
+      ],
+    };
+
+    const success =
+      await this.emailService.sendNotificationEmail(testEmailData);
+
+    return {
+      success,
+      message: success
+        ? 'Test email sent successfully'
+        : 'Failed to send test email. Check server logs for details.',
+    };
   }
 }

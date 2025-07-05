@@ -17,6 +17,7 @@ import { CronModule } from './cron/cron.module';
 import { NewsAggregationModule } from './news-aggregation/news-aggregation.module';
 import { UserPreferencesModule } from './user-preferences/user-preferences.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     NewsAggregationModule,
     UserPreferencesModule,
     NotificationsModule,
+    EmailModule,
   ],
 })
 export class AppModule {}
