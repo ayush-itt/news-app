@@ -20,6 +20,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { EmailModule } from './email/email.module';
 import { ArticleReportModule } from './article-reports/article-report.module';
 import { BannedKeywordsModule } from './banned-keywords/banned-keywords.module';
+import { UserReadingHistoryModule } from './user-reading-history/user-reading-history.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { BannedKeywordsModule } from './banned-keywords/banned-keywords.module';
     EmailModule,
     ArticleReportModule,
     BannedKeywordsModule,
+    UserReadingHistoryModule,
   ],
 })
 export class AppModule {}

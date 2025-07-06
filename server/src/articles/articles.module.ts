@@ -7,11 +7,13 @@ import { Category } from '../database/entities/category.entity';
 import { ArticleRepository } from '../database/repositories/article.repository';
 import { CategoryRepository } from '../database/repositories/category.repository';
 import { BannedKeywordsModule } from '../banned-keywords/banned-keywords.module';
+import { UserReadingHistoryModule } from '../user-reading-history/user-reading-history.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Article, Category]),
     BannedKeywordsModule,
+    UserReadingHistoryModule,
   ],
   controllers: [ArticlesController],
   providers: [ArticlesService, ArticleRepository, CategoryRepository],

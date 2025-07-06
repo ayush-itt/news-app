@@ -7,6 +7,7 @@ import {
 import { ArticleRepository } from '../database/repositories/article.repository';
 import { CategoryRepository } from '../database/repositories/category.repository';
 import { BannedKeywordsService } from '../banned-keywords/banned-keywords.service';
+import { UserReadingHistoryService } from '../user-reading-history/user-reading-history.service';
 import { Article } from '../database/entities/article.entity';
 import { CreateArticleDto, UpdateArticleDto, ArticleQueryDto } from './dto';
 import {
@@ -22,6 +23,7 @@ export class ArticlesService {
     private readonly articleRepository: ArticleRepository,
     private readonly categoryRepository: CategoryRepository,
     private readonly bannedKeywordsService: BannedKeywordsService,
+    private readonly userReadingHistoryService: UserReadingHistoryService,
   ) {}
 
   async createArticle(createArticleDto: CreateArticleDto): Promise<Article> {
@@ -125,6 +127,17 @@ export class ArticlesService {
     if (!article) {
       throw new NotFoundException(`Article with ID ${id} not found`);
     }
+
+    // Automatically track reading history for authenticated users
+    if (user?.id) {
+      try {
+        await this.userReadingHistoryService.recordAutoReading(user.id, id);
+      } catch (error) {
+        // Log error but don't fail the request if reading history creation fails
+        console.warn('Failed to create reading history:', error);
+      }
+    }
+
     return article;
   }
 
