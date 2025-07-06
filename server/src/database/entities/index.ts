@@ -6,3 +6,4 @@ export { NewsSource } from './news-source.entity';
 export { Keyword } from './keyword.entity';
 export { UserPreference } from './user-preference.entity';
 export { ArticleReport } from './article-report.entity';
+export { BannedKeyword } from './banned-keyword.entity';

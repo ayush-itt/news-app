@@ -6,9 +6,13 @@ import { Article } from '../database/entities/article.entity';
 import { Category } from '../database/entities/category.entity';
 import { ArticleRepository } from '../database/repositories/article.repository';
 import { CategoryRepository } from '../database/repositories/category.repository';
+import { BannedKeywordsModule } from '../banned-keywords/banned-keywords.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Article, Category])],
+  imports: [
+    TypeOrmModule.forFeature([Article, Category]),
+    BannedKeywordsModule,
+  ],
   controllers: [ArticlesController],
   providers: [ArticlesService, ArticleRepository, CategoryRepository],
   exports: [ArticlesService, ArticleRepository],

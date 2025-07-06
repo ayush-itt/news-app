@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ArticleRepository } from '../database/repositories/article.repository';
 import { CategoryRepository } from '../database/repositories/category.repository';
+import { BannedKeywordsService } from '../banned-keywords/banned-keywords.service';
 import { Article } from '../database/entities/article.entity';
 import { CreateArticleDto, UpdateArticleDto, ArticleQueryDto } from './dto';
 import {
@@ -20,6 +21,7 @@ export class ArticlesService {
   constructor(
     private readonly articleRepository: ArticleRepository,
     private readonly categoryRepository: CategoryRepository,
+    private readonly bannedKeywordsService: BannedKeywordsService,
   ) {}
 
   async createArticle(createArticleDto: CreateArticleDto): Promise<Article> {
@@ -29,6 +31,25 @@ export class ArticlesService {
     );
     if (existsByUrl) {
       throw new ConflictException('Article with this URL already exists');
+    }
+
+    // Check for banned keywords in title and content
+    const titleCheck = await this.bannedKeywordsService.containsBannedKeywords(
+      createArticleDto.title,
+    );
+    const contentCheck =
+      await this.bannedKeywordsService.containsBannedKeywords(
+        createArticleDto.content || '',
+      );
+
+    if (titleCheck.hasBanned || contentCheck.hasBanned) {
+      const allMatchedKeywords = [
+        ...titleCheck.matchedKeywords,
+        ...contentCheck.matchedKeywords,
+      ];
+      throw new BadRequestException(
+        `Article contains banned keywords: ${allMatchedKeywords.join(', ')}`,
+      );
     }
 
     // Validate categories if provided
@@ -278,5 +299,31 @@ export class ArticlesService {
 
   async markArticlesAsProcessed(articleIds: number[]): Promise<void> {
     await this.articleRepository.markArticlesAsProcessed(articleIds);
+  }
+
+  /**
+   * Check if article contains banned keywords
+   * @param article - Article to check
+   * @returns Promise with banned keyword check result
+   */
+  async checkArticleForBannedKeywords(article: Article): Promise<{
+    hasBanned: boolean;
+    matchedKeywords: string[];
+  }> {
+    const titleCheck = await this.bannedKeywordsService.containsBannedKeywords(
+      article.title,
+    );
+    const contentCheck =
+      await this.bannedKeywordsService.containsBannedKeywords(
+        article.content || '',
+      );
+
+    return {
+      hasBanned: titleCheck.hasBanned || contentCheck.hasBanned,
+      matchedKeywords: [
+        ...titleCheck.matchedKeywords,
+        ...contentCheck.matchedKeywords,
+      ],
+    };
   }
 }
