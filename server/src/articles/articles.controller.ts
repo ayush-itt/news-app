@@ -5,6 +5,7 @@ import {
   ParseIntPipe,
   UseGuards,
   Param,
+  Request,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -112,8 +113,9 @@ export class ArticlesController {
   })
   async findAll(
     @Query() query: ArticleQueryDto,
+    @Request() req: any,
   ): Promise<PaginatedArticleResponseDto> {
-    const result = await this.articlesService.findAllArticles(query);
+    const result = await this.articlesService.findAllArticles(query, req.user);
     return PaginatedArticleResponseDto.fromPaginatedResult(result);
   }
 
@@ -151,11 +153,13 @@ export class ArticlesController {
     page: number = PAGINATION.DEFAULT_PAGE,
     @Query('limit', new ParseIntPipe({ optional: true }))
     limit: number = PAGINATION.DEFAULT_LIMIT,
+    @Request() req: any,
   ): Promise<PaginatedArticleResponseDto> {
     const result = await this.articlesService.searchArticles(
       searchTerm,
       page,
       limit,
+      req.user,
     );
     return PaginatedArticleResponseDto.fromPaginatedResult(result);
   }
@@ -189,11 +193,13 @@ export class ArticlesController {
     page: number = PAGINATION.DEFAULT_PAGE,
     @Query('limit', new ParseIntPipe({ optional: true }))
     limit: number = PAGINATION.DEFAULT_LIMIT,
+    @Request() req: any,
   ): Promise<PaginatedArticleResponseDto> {
     const result = await this.articlesService.findArticlesByCategory(
       categoryId,
       page,
       limit,
+      req.user,
     );
     return PaginatedArticleResponseDto.fromPaginatedResult(result);
   }
@@ -211,8 +217,9 @@ export class ArticlesController {
   @ApiParam({ name: 'id', type: Number, description: 'Article ID' })
   async findOne(
     @Param('id', ParseIntPipe) id: number,
+    @Request() req: any,
   ): Promise<ArticleResponseDto> {
-    const article = await this.articlesService.findArticleById(id);
+    const article = await this.articlesService.findArticleById(id, req.user);
     return ArticleResponseDto.fromEntity(article);
   }
 

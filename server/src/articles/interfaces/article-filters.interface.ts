@@ -5,4 +5,5 @@ export interface ArticleFilters {
   source?: string;
   publishedAfter?: Date;
   publishedBefore?: Date;
+  includeInactive?: boolean; // For admin use - includes inactive articles
 }

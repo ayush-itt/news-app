@@ -63,6 +63,7 @@ export class ArticlesService {
 
   async findAllArticles(
     query: ArticleQueryDto,
+    user?: any, // User entity from JWT
   ): Promise<PaginatedResult<Article>> {
     const {
       page = PAGINATION.DEFAULT_PAGE,
@@ -81,6 +82,8 @@ export class ArticlesService {
       publishedBefore: filterParams.publishedBefore
         ? new Date(filterParams.publishedBefore)
         : undefined,
+      // Admin can see all articles, regular users only see active ones
+      includeInactive: user?.role?.name === 'admin',
     };
 
     const pagination: PaginationOptions = { page, limit };
@@ -88,8 +91,16 @@ export class ArticlesService {
     return await this.articleRepository.findAllPaginated(filters, pagination);
   }
 
-  async findArticleById(id: number): Promise<Article> {
-    const article = await this.articleRepository.findByIdWithCategories(id);
+  async findArticleById(id: number, user?: any): Promise<Article> {
+    let article: Article | null;
+
+    // Admin can see all articles, regular users only see active ones
+    if (user?.role?.name === 'admin') {
+      article = await this.articleRepository.findByIdWithCategories(id);
+    } else {
+      article = await this.articleRepository.findByIdWithCategoriesForUser(id);
+    }
+
     if (!article) {
       throw new NotFoundException(`Article with ID ${id} not found`);
     }
@@ -176,6 +187,7 @@ export class ArticlesService {
     categoryId: number,
     page: number = PAGINATION.DEFAULT_PAGE,
     limit: number = PAGINATION.DEFAULT_LIMIT,
+    user?: any,
   ): Promise<PaginatedResult<Article>> {
     // Verify category exists
     const category = await this.categoryRepository.findById(categoryId);
@@ -183,7 +195,13 @@ export class ArticlesService {
       throw new NotFoundException(`Category with ID ${categoryId} not found`);
     }
 
-    return await this.articleRepository.findByCategory(categoryId, {
+    const filters: ArticleFilters = {
+      categoryIds: [categoryId],
+      // Admin can see all articles, regular users only see active ones
+      includeInactive: user?.role?.name === 'admin',
+    };
+
+    return await this.articleRepository.findAllPaginated(filters, {
       page,
       limit,
     });
@@ -193,6 +211,7 @@ export class ArticlesService {
     searchTerm: string,
     page: number = PAGINATION.DEFAULT_PAGE,
     limit: number = PAGINATION.DEFAULT_LIMIT,
+    user?: any,
   ): Promise<PaginatedResult<Article>> {
     if (!searchTerm || searchTerm.trim().length < 2) {
       throw new BadRequestException(
@@ -200,7 +219,13 @@ export class ArticlesService {
       );
     }
 
-    return await this.articleRepository.searchArticles(searchTerm.trim(), {
+    const filters: ArticleFilters = {
+      search: searchTerm.trim(),
+      // Admin can see all articles, regular users only see active ones
+      includeInactive: user?.role?.name === 'admin',
+    };
+
+    return await this.articleRepository.findAllPaginated(filters, {
       page,
       limit,
     });
@@ -225,6 +250,26 @@ export class ArticlesService {
         `Categories with IDs ${inactiveIds.join(', ')} are inactive`,
       );
     }
+  }
+
+  async hideArticle(id: number): Promise<Article> {
+    const article = await this.articleRepository.findByIdWithCategories(id);
+    if (!article) {
+      throw new NotFoundException(`Article with ID ${id} not found`);
+    }
+
+    await this.articleRepository.update(id, { isActive: false });
+    return await this.articleRepository.findByIdWithCategories(id);
+  }
+
+  async showArticle(id: number): Promise<Article> {
+    const article = await this.articleRepository.findByIdWithCategories(id);
+    if (!article) {
+      throw new NotFoundException(`Article with ID ${id} not found`);
+    }
+
+    await this.articleRepository.update(id, { isActive: true });
+    return await this.articleRepository.findByIdWithCategories(id);
   }
 
   async getUnprocessedArticles(): Promise<Article[]> {

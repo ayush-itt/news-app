@@ -20,6 +20,18 @@ export class UserPreferencesService {
     categoryId: number,
     updateDto: UpdateUserPreferenceDto,
   ): Promise<UserPreference> {
+    // First check if the category is active
+    const category = await this.categoryRepository.findById(categoryId);
+    if (!category) {
+      throw new NotFoundException(`Category with ID ${categoryId} not found`);
+    }
+
+    if (!category.isActive) {
+      throw new NotFoundException(
+        `Category ${categoryId} is not available for preferences`,
+      );
+    }
+
     const preference =
       await this.userPreferenceRepository.findByUserAndCategory(
         userId,
@@ -62,9 +74,13 @@ export class UserPreferencesService {
   }
 
   async getSubscribedUserPreferences(): Promise<UserPreference[]> {
-    return this.userPreferenceRepository.find({
-      where: { isSubscribed: true },
-      relations: ['user', 'category'],
-    });
+    // Only return subscribed preferences for active categories
+    return this.userPreferenceRepository
+      .createQueryBuilder('preference')
+      .leftJoinAndSelect('preference.user', 'user')
+      .leftJoinAndSelect('preference.category', 'category')
+      .where('preference.isSubscribed = :isSubscribed', { isSubscribed: true })
+      .andWhere('category.isActive = :isActive', { isActive: true })
+      .getMany();
   }
 }

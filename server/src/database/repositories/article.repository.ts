@@ -53,6 +53,16 @@ export class ArticleRepository extends Repository<Article> {
     });
   }
 
+  async findByIdWithCategoriesForUser(id: number): Promise<Article | null> {
+    // For users: only return articles that are active AND have at least one active category
+    return await this.createQueryBuilder('article')
+      .leftJoinAndSelect('article.categories', 'category')
+      .where('article.id = :id', { id })
+      .andWhere('article.isActive = :articleActive', { articleActive: true })
+      .andWhere('category.isActive = :categoryActive', { categoryActive: true })
+      .getOne();
+  }
+
   async updateArticle(
     id: number,
     updateArticleDto: UpdateArticleDto,
@@ -98,6 +108,17 @@ export class ArticleRepository extends Repository<Article> {
       'category',
     );
 
+    // Filter by article isActive status unless includeInactive is true (for admin)
+    if (!filters.includeInactive) {
+      queryBuilder.andWhere('article.isActive = :articleActive', {
+        articleActive: true,
+      });
+      // Also filter out articles from inactive categories for regular users
+      queryBuilder.andWhere('category.isActive = :categoryActive', {
+        categoryActive: true,
+      });
+    }
+
     if (filters.categoryIds?.length) {
       queryBuilder.andWhere('category.id IN (:...categoryIds)', {
         categoryIds: filters.categoryIds,
@@ -139,10 +160,15 @@ export class ArticleRepository extends Repository<Article> {
   }
 
   async findUnprocessedArticles(): Promise<Article[]> {
-    return this.find({
-      where: { processedForNotifications: false },
-      relations: ['categories'],
-    });
+    // Only process notifications for active articles from active categories
+    return this.createQueryBuilder('article')
+      .leftJoinAndSelect('article.categories', 'category')
+      .where('article.processedForNotifications = :processed', {
+        processed: false,
+      })
+      .andWhere('article.isActive = :articleActive', { articleActive: true })
+      .andWhere('category.isActive = :categoryActive', { categoryActive: true })
+      .getMany();
   }
 
   async markArticlesAsProcessed(articleIds: number[]): Promise<void> {

@@ -51,6 +51,13 @@ export class Article {
   })
   processedForNotifications: boolean;
 
+  @Column({
+    type: 'boolean',
+    default: true,
+    name: 'is_active',
+  })
+  isActive: boolean;
+
   @ManyToMany(() => Category, (category) => category.articles, {
     cascade: true,
     onDelete: 'CASCADE',

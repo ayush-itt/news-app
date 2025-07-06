@@ -9,21 +9,26 @@ export class UserPreferenceRepository extends Repository<UserPreference> {
   }
 
   async findByUserId(userId: number): Promise<UserPreference[]> {
-    return this.find({
-      where: { userId: userId },
-      relations: ['category'],
-      order: { category: { name: 'ASC' } },
-    });
+    // Only return preferences for active categories
+    return this.createQueryBuilder('preference')
+      .leftJoinAndSelect('preference.category', 'category')
+      .where('preference.userId = :userId', { userId })
+      .andWhere('category.isActive = :isActive', { isActive: true })
+      .orderBy('category.name', 'ASC')
+      .getMany();
   }
 
   async findByUserAndCategory(
     userId: number,
     categoryId: number,
   ): Promise<UserPreference | null> {
-    return this.findOne({
-      where: { userId: userId, categoryId: categoryId },
-      relations: ['category'],
-    });
+    // Only return preference if category is active
+    return this.createQueryBuilder('preference')
+      .leftJoinAndSelect('preference.category', 'category')
+      .where('preference.userId = :userId', { userId })
+      .andWhere('preference.categoryId = :categoryId', { categoryId })
+      .andWhere('category.isActive = :isActive', { isActive: true })
+      .getOne();
   }
 
   async createOrUpdatePreference(
@@ -41,6 +46,9 @@ export class UserPreferenceRepository extends Repository<UserPreference> {
       return this.save(existingPreference);
     }
 
+    // For new preferences, we should validate that the category is active
+    // However, since this method is also used during bulk operations,
+    // we'll handle validation at the service level
     const newPreference = this.create({
       userId: userId,
       categoryId: categoryId,

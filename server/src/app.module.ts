@@ -18,6 +18,7 @@ import { NewsAggregationModule } from './news-aggregation/news-aggregation.modul
 import { UserPreferencesModule } from './user-preferences/user-preferences.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { EmailModule } from './email/email.module';
+import { ArticleReportModule } from './article-reports/article-report.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { EmailModule } from './email/email.module';
     UserPreferencesModule,
     NotificationsModule,
     EmailModule,
+    ArticleReportModule,
   ],
 })
 export class AppModule {}
