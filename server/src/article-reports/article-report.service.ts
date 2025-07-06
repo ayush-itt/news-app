@@ -20,22 +20,17 @@ export class ArticleReportService {
     private readonly articlesService: ArticlesService,
   ) {}
 
-  /**
-   * Report an article by a user
-   */
-  async reportArticle(
+  async createReport(
     articleId: number,
     userId: number,
-    createReportDto: CreateArticleReportDto,
+    reportData: CreateArticleReportDto,
   ): Promise<ArticleReport> {
-    // Check if article exists and is active (users can only report active articles)
-    // Create a partial user object for the role check
     const userForRoleCheck = {
       role: { name: 'user' },
       id: userId,
     } as unknown as User;
 
-    const article = await this.articlesService.findArticleById(
+    const article = await this.articlesService.getArticleById(
       articleId,
       userForRoleCheck,
     );
@@ -44,38 +39,32 @@ export class ArticleReportService {
       throw new NotFoundException(`Article with ID ${articleId} not found`);
     }
 
-    // Check if user has already reported this article
-    const existingReport =
+    const hasExistingReport =
       await this.articleReportRepository.existsByUserAndArticle(
         userId,
         articleId,
       );
 
-    if (existingReport) {
+    if (hasExistingReport) {
       throw new ConflictException('You have already reported this article');
     }
 
-    // Create the report
-    const report = await this.articleReportRepository.createReport(
+    const newReport = await this.articleReportRepository.createReport(
       userId,
       articleId,
-      createReportDto.reason,
+      reportData.reason,
     );
 
     this.logger.log(
-      `Article ${articleId} reported by user ${userId} with reason: ${createReportDto.reason}`,
+      `Article ${articleId} reported by user ${userId} with reason: ${reportData.reason}`,
     );
 
-    // Check if article should be auto-hidden
-    await this.checkAndAutoHideArticle(articleId);
+    await this.processAutoHideIfNeeded(articleId);
 
-    return report;
+    return newReport;
   }
 
-  /**
-   * Check if article should be auto-hidden based on report threshold
-   */
-  private async checkAndAutoHideArticle(articleId: number): Promise<void> {
+  private async processAutoHideIfNeeded(articleId: number): Promise<void> {
     const reportCount =
       await this.articleReportRepository.countByArticleId(articleId);
 
@@ -84,20 +73,15 @@ export class ArticleReportService {
         `Article ${articleId} reached report threshold (${reportCount}/${REPORT_CONSTANTS.AUTO_HIDE_THRESHOLD}), auto-hiding`,
       );
 
-      // Hide the article
       await this.articlesService.hideArticle(articleId);
 
-      // TODO: Send notification to admin about auto-hidden article
       this.logger.log(
         `Admin notification: Article ${articleId} was auto-hidden due to excessive reports`,
       );
     }
   }
 
-  /**
-   * Get all reports (admin only)
-   */
-  async getAllReports(query: GetReportsQueryDto) {
+  async getAllReportsWithPagination(query: GetReportsQueryDto) {
     const { page, limit, status } = query;
 
     const result = await this.articleReportRepository.findAllWithPagination(
@@ -106,30 +90,25 @@ export class ArticleReportService {
       status,
     );
 
-    // Add summary statistics
-    const summary = {
+    const reportSummary = {
       totalReports: result.total,
-      pendingReports: await this.getPendingReportsCount(),
-      resolvedReports: await this.getResolvedReportsCount(),
+      pendingReports: await this.countPendingReports(),
+      resolvedReports: await this.countResolvedReports(),
     };
 
     return {
       ...result,
-      summary,
+      summary: reportSummary,
     };
   }
 
-  /**
-   * Get reports for a specific article (admin only)
-   */
-  async getReportsByArticleId(articleId: number): Promise<ArticleReport[]> {
-    // Verify article exists (admin can see all articles)
+  async findReportsByArticleId(articleId: number): Promise<ArticleReport[]> {
     const adminUser = {
       role: { name: 'admin' },
       id: 1,
     } as unknown as User;
 
-    const article = await this.articlesService.findArticleById(
+    const article = await this.articlesService.getArticleById(
       articleId,
       adminUser,
     );
@@ -140,35 +119,19 @@ export class ArticleReportService {
     return this.articleReportRepository.findByArticleId(articleId);
   }
 
-  /**
-   * Get reports by a specific user (admin only)
-   */
-  async getReportsByUserId(userId: number): Promise<ArticleReport[]> {
+  async findReportsByUserId(userId: number): Promise<ArticleReport[]> {
     return this.articleReportRepository.findByUserId(userId);
   }
 
-  /**
-   * Get report count for an article
-   */
-  async getReportCount(articleId: number): Promise<number> {
+  async countReportsByArticleId(articleId: number): Promise<number> {
     return this.articleReportRepository.countByArticleId(articleId);
   }
 
-  /**
-   * Get pending reports count (articles that are still active but reported)
-   */
-  private async getPendingReportsCount(): Promise<number> {
-    // This would require a more complex query to count reports for active articles
-    // For now, return 0 - can be implemented later with proper joins
+  private async countPendingReports(): Promise<number> {
     return 0;
   }
 
-  /**
-   * Get resolved reports count (articles that have been hidden)
-   */
-  private async getResolvedReportsCount(): Promise<number> {
-    // This would require a more complex query to count reports for inactive articles
-    // For now, return 0 - can be implemented later with proper joins
+  private async countResolvedReports(): Promise<number> {
     return 0;
   }
 }

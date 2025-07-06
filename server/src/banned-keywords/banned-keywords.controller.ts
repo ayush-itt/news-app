@@ -39,9 +39,6 @@ import {
 export class BannedKeywordsController {
   constructor(private readonly bannedKeywordsService: BannedKeywordsService) {}
 
-  /**
-   * Create a new banned keyword
-   */
   @ApiOperation({
     summary: 'Create a new banned keyword',
     description:
@@ -97,12 +94,9 @@ export class BannedKeywordsController {
   })
   @Post()
   async createBannedKeyword(@Body() createDto: CreateBannedKeywordDto) {
-    return this.bannedKeywordsService.createBannedKeyword(createDto);
+    return this.bannedKeywordsService.create(createDto);
   }
 
-  /**
-   * Get all banned keywords with filtering and pagination
-   */
   @ApiOperation({
     summary: 'Get all banned keywords',
     description:
@@ -166,12 +160,9 @@ export class BannedKeywordsController {
   })
   @Get()
   async getBannedKeywords(@Query() queryDto: GetBannedKeywordsQueryDto) {
-    return this.bannedKeywordsService.getBannedKeywords(queryDto);
+    return this.bannedKeywordsService.getList(queryDto);
   }
 
-  /**
-   * Get a specific banned keyword by ID
-   */
   @ApiOperation({
     summary: 'Get banned keyword by ID',
     description: 'Retrieve a specific banned keyword by its unique identifier.',
@@ -218,12 +209,9 @@ export class BannedKeywordsController {
   })
   @Get(':id')
   async getBannedKeywordById(@Param('id') id: number) {
-    return this.bannedKeywordsService.getBannedKeywordById(id);
+    return this.bannedKeywordsService.getById(id);
   }
 
-  /**
-   * Update a banned keyword
-   */
   @ApiOperation({
     summary: 'Update a banned keyword',
     description:
@@ -302,12 +290,9 @@ export class BannedKeywordsController {
     @Param('id') id: number,
     @Body() updateDto: UpdateBannedKeywordDto,
   ) {
-    return this.bannedKeywordsService.updateBannedKeyword(id, updateDto);
+    return this.bannedKeywordsService.update(id, updateDto);
   }
 
-  /**
-   * Delete a banned keyword
-   */
   @ApiOperation({
     summary: 'Delete a banned keyword',
     description: 'Permanently delete a banned keyword from the system.',
@@ -338,12 +323,9 @@ export class BannedKeywordsController {
   })
   @Delete(':id')
   async deleteBannedKeyword(@Param('id') id: number) {
-    await this.bannedKeywordsService.deleteBannedKeyword(id);
+    await this.bannedKeywordsService.delete(id);
   }
 
-  /**
-   * Toggle active status of a banned keyword
-   */
   @ApiOperation({
     summary: 'Toggle banned keyword active status',
     description:
@@ -391,6 +373,6 @@ export class BannedKeywordsController {
   })
   @Put(':id/toggle')
   async toggleBannedKeyword(@Param('id') id: number) {
-    return this.bannedKeywordsService.toggleBannedKeyword(id);
+    return this.bannedKeywordsService.toggle(id);
   }
 }

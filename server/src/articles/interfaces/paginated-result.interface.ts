@@ -1,3 +1,4 @@
+// This file is deprecated - use pagination.interface.ts instead
 export interface PaginatedResult<T> {
   data: T[];
   total: number;

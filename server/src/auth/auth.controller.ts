@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginDto, LoginResponse, LogoutResponse } from './dto';
+import { LoginDto, LoginResponseDto, LogoutResponseDto } from './dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AUTH } from '@/common/constants/auth.constants';
 import { Auth } from './decorators';
@@ -22,7 +22,7 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User successfully logged in',
-    type: LoginResponse,
+    type: LoginResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -31,7 +31,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() loginRequest: LoginDto): Promise<LoginResponse> {
+  async login(@Body() loginRequest: LoginDto): Promise<LoginResponseDto> {
     const result = await this.authService.login(loginRequest);
     return {
       message: AUTH.MESSAGES.LOGIN_SUCCESS,
@@ -52,7 +52,7 @@ export class AuthController {
   @Auth()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(): LogoutResponse {
+  logout(): LogoutResponseDto {
     return { message: AUTH.MESSAGES.LOGOUT_SUCCESS };
   }
 }

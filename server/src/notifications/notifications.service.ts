@@ -6,6 +6,10 @@ import {
   NotificationQueryDto,
 } from './dto';
 import { Notification } from '@/database/entities/notification.entity';
+import {
+  INotificationCountResult,
+  ICreateNotificationData,
+} from './interfaces';
 
 @Injectable()
 export class NotificationsService {
@@ -70,7 +74,9 @@ export class NotificationsService {
     return NotificationResponseDto.fromEntity(notification);
   }
 
-  async markAllNotificationsAsRead(userId: number): Promise<{ count: number }> {
+  async markAllNotificationsAsRead(
+    userId: number,
+  ): Promise<INotificationCountResult> {
     // Get the count of unread notifications before marking them as read
     const unreadCount =
       await this.notificationRepository.getUnreadCount(userId);
@@ -79,18 +85,15 @@ export class NotificationsService {
     return { count: unreadCount };
   }
 
-  async getUnreadCount(userId: number): Promise<{ count: number }> {
+  async getUnreadCount(userId: number): Promise<INotificationCountResult> {
     const count = await this.notificationRepository.getUnreadCount(userId);
     return { count };
   }
 
   // This method will be called by the cron job for creating notifications
-  async createNotification(data: {
-    userId: number;
-    articleId?: number;
-    categoryId?: number;
-    keywordId?: number;
-  }): Promise<Notification> {
+  async createNotification(
+    data: ICreateNotificationData,
+  ): Promise<Notification> {
     return this.notificationRepository.create(data);
   }
 

@@ -115,7 +115,7 @@ export class ArticlesController {
     @Query() query: ArticleQueryDto,
     @Request() req: any,
   ): Promise<PaginatedArticleResponseDto> {
-    const result = await this.articlesService.findAllArticles(query, req.user);
+    const result = await this.articlesService.getArticles(query, req.user);
     return PaginatedArticleResponseDto.fromPaginatedResult(result);
   }
 
@@ -155,7 +155,7 @@ export class ArticlesController {
     limit: number = PAGINATION.DEFAULT_LIMIT,
     @Request() req: any,
   ): Promise<PaginatedArticleResponseDto> {
-    const result = await this.articlesService.searchArticles(
+    const result = await this.articlesService.searchByQuery(
       searchTerm,
       page,
       limit,
@@ -195,7 +195,7 @@ export class ArticlesController {
     limit: number = PAGINATION.DEFAULT_LIMIT,
     @Request() req: any,
   ): Promise<PaginatedArticleResponseDto> {
-    const result = await this.articlesService.findArticlesByCategory(
+    const result = await this.articlesService.getArticlesByCategory(
       categoryId,
       page,
       limit,
@@ -219,7 +219,7 @@ export class ArticlesController {
     @Param('id', ParseIntPipe) id: number,
     @Request() req: any,
   ): Promise<ArticleResponseDto> {
-    const article = await this.articlesService.findArticleById(id, req.user);
+    const article = await this.articlesService.getArticleById(id, req.user);
     return ArticleResponseDto.fromEntity(article);
   }
 

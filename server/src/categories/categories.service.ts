@@ -6,6 +6,14 @@ import {
 } from '@nestjs/common';
 import { CategoryRepository } from '../database/repositories';
 import { generateSlug } from '../common/utils';
+import {
+  ICategoryResponse,
+  ICategoryCreateResponse,
+  ICategoryUpdateResponse,
+  ICategoryDeleteResponse,
+  ICategoryToggleResponse,
+  ICategoryPaginatedResponse,
+} from './interfaces';
 
 @Injectable()
 export class CategoriesService {
@@ -14,7 +22,7 @@ export class CategoriesService {
   async createCategory(
     name: string,
     description?: string,
-  ): Promise<{ message: string; category: any }> {
+  ): Promise<ICategoryCreateResponse> {
     const slug = generateSlug(name);
 
     const exists = await this.categoryRepository.checkIfExists(name, slug);
@@ -40,11 +48,13 @@ export class CategoriesService {
     }
   }
 
-  async getAllCategories(activeOnly: boolean = true): Promise<any[]> {
+  async getAllCategories(
+    activeOnly: boolean = true,
+  ): Promise<ICategoryResponse[]> {
     return await this.categoryRepository.findAll(activeOnly);
   }
 
-  async getCategoryById(id: number): Promise<any> {
+  async getCategoryById(id: number): Promise<ICategoryResponse> {
     const category = await this.categoryRepository.findById(id);
     if (!category) {
       throw new NotFoundException(`Category with ID ${id} not found`);
@@ -52,7 +62,7 @@ export class CategoriesService {
     return category;
   }
 
-  async getCategoryBySlug(slug: string): Promise<any> {
+  async getCategoryBySlug(slug: string): Promise<ICategoryResponse> {
     const category = await this.categoryRepository.findBySlug(slug);
     if (!category) {
       throw new NotFoundException(`Category with slug '${slug}' not found`);
@@ -67,7 +77,7 @@ export class CategoriesService {
       isActive?: boolean;
       slug?: string;
     },
-  ): Promise<{ message: string; category: any }> {
+  ): Promise<ICategoryUpdateResponse> {
     const existingCategory = await this.categoryRepository.findById(id);
     if (!existingCategory) {
       throw new NotFoundException(`Category with ID ${id} not found`);
@@ -104,7 +114,7 @@ export class CategoriesService {
     }
   }
 
-  async deleteCategory(id: number): Promise<{ message: string }> {
+  async deleteCategory(id: number): Promise<ICategoryDeleteResponse> {
     const existingCategory = await this.categoryRepository.findById(id);
     if (!existingCategory) {
       throw new NotFoundException(`Category with ID ${id} not found`);
@@ -130,12 +140,7 @@ export class CategoriesService {
   async getCategoriesWithPagination(
     page: number = 1,
     limit: number = 10,
-  ): Promise<{
-    categories: any[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
+  ): Promise<ICategoryPaginatedResponse> {
     const result = await this.categoryRepository.findWithPagination(
       page,
       limit,
@@ -149,9 +154,7 @@ export class CategoriesService {
     };
   }
 
-  async toggleCategoryStatus(
-    id: number,
-  ): Promise<{ message: string; category: any }> {
+  async toggleCategoryStatus(id: number): Promise<ICategoryToggleResponse> {
     const category = await this.categoryRepository.findById(id);
     if (!category) {
       throw new NotFoundException(`Category with ID ${id} not found`);

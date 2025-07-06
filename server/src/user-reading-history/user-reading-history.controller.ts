@@ -32,9 +32,6 @@ export class UserReadingHistoryController {
     private readonly readingHistoryService: UserReadingHistoryService,
   ) {}
 
-  /**
-   * Get user's own reading history (for regular users)
-   */
   @ApiOperation({
     summary: 'Get user reading history',
     description:
@@ -109,9 +106,6 @@ export class UserReadingHistoryController {
     return this.readingHistoryService.getUserReadingHistory(userId, queryDto);
   }
 
-  /**
-   * Get all users' reading history (admin only)
-   */
   @ApiOperation({
     summary: 'Get all users reading history (admin)',
     description:

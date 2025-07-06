@@ -1,4 +1,4 @@
-export interface ArticleFilters {
+export interface IArticleFilters {
   categoryIds?: number[];
   search?: string;
   author?: string;

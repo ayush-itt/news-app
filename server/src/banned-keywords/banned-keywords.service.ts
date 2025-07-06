@@ -22,13 +22,7 @@ export class BannedKeywordsService {
     private readonly bannedKeywordRepository: BannedKeywordRepository,
   ) {}
 
-  /**
-   * Create a new banned keyword
-   */
-  async createBannedKeyword(
-    createDto: CreateBannedKeywordDto,
-  ): Promise<BannedKeyword> {
-    // Check if keyword already exists
+  async create(createDto: CreateBannedKeywordDto): Promise<BannedKeyword> {
     const existingKeyword = await this.bannedKeywordRepository.findByKeyword(
       createDto.keyword,
     );
@@ -38,7 +32,6 @@ export class BannedKeywordsService {
       );
     }
 
-    // Validate regex if isRegex is true
     if (createDto.isRegex) {
       try {
         new RegExp(createDto.keyword);
@@ -61,15 +54,11 @@ export class BannedKeywordsService {
     return bannedKeyword;
   }
 
-  /**
-   * Get all banned keywords with filtering and pagination
-   */
-  async getBannedKeywords(
+  async getList(
     queryDto: GetBannedKeywordsQueryDto,
   ): Promise<BannedKeywordListResponseDto> {
     let keywords = await this.bannedKeywordRepository.findAll();
 
-    // Apply filters
     if (queryDto.isActive !== undefined) {
       keywords = keywords.filter(
         (keyword) => keyword.isActive === queryDto.isActive,
@@ -89,7 +78,6 @@ export class BannedKeywordsService {
     const total = keywords.length;
     const totalPages = Math.ceil(total / queryDto.limit);
 
-    // Apply pagination
     const startIndex = (queryDto.page - 1) * queryDto.limit;
     const paginatedKeywords = keywords.slice(
       startIndex,
@@ -105,10 +93,7 @@ export class BannedKeywordsService {
     };
   }
 
-  /**
-   * Get banned keyword by ID
-   */
-  async getBannedKeywordById(id: number): Promise<BannedKeyword> {
+  async getById(id: number): Promise<BannedKeyword> {
     const bannedKeyword = await this.bannedKeywordRepository.findById(id);
     if (!bannedKeyword) {
       throw new NotFoundException(`Banned keyword with ID ${id} not found`);
@@ -116,16 +101,12 @@ export class BannedKeywordsService {
     return bannedKeyword;
   }
 
-  /**
-   * Update a banned keyword
-   */
-  async updateBannedKeyword(
+  async update(
     id: number,
     updateDto: UpdateBannedKeywordDto,
   ): Promise<BannedKeyword> {
-    const existingKeyword = await this.getBannedKeywordById(id);
+    const existingKeyword = await this.getById(id);
 
-    // Check if new keyword conflicts with existing ones
     if (updateDto.keyword && updateDto.keyword !== existingKeyword.keyword) {
       const conflictingKeyword =
         await this.bannedKeywordRepository.findByKeyword(updateDto.keyword);
@@ -136,7 +117,6 @@ export class BannedKeywordsService {
       }
     }
 
-    // Validate regex if isRegex is being set to true
     if (updateDto.isRegex || (updateDto.keyword && existingKeyword.isRegex)) {
       const keywordToTest = updateDto.keyword || existingKeyword.keyword;
       try {
@@ -160,11 +140,8 @@ export class BannedKeywordsService {
     return updatedKeyword;
   }
 
-  /**
-   * Delete a banned keyword
-   */
-  async deleteBannedKeyword(id: number): Promise<void> {
-    const bannedKeyword = await this.getBannedKeywordById(id);
+  async delete(id: number): Promise<void> {
+    const bannedKeyword = await this.getById(id);
     const deleted = await this.bannedKeywordRepository.delete(id);
 
     if (!deleted) {
@@ -176,10 +153,7 @@ export class BannedKeywordsService {
     );
   }
 
-  /**
-   * Toggle active status of a banned keyword
-   */
-  async toggleBannedKeyword(id: number): Promise<BannedKeyword> {
+  async toggle(id: number): Promise<BannedKeyword> {
     const updatedKeyword = await this.bannedKeywordRepository.toggleActive(id);
     if (!updatedKeyword) {
       throw new NotFoundException(`Banned keyword with ID ${id} not found`);
@@ -191,20 +165,14 @@ export class BannedKeywordsService {
     return updatedKeyword;
   }
 
-  /**
-   * Get all active banned keywords (for filtering purposes)
-   */
-  async getActiveBannedKeywords(): Promise<BannedKeyword[]> {
+  async getActiveList(): Promise<BannedKeyword[]> {
     return this.bannedKeywordRepository.findAllActive();
   }
 
-  /**
-   * Check if text contains any banned keywords
-   */
-  async containsBannedKeywords(
+  async validateContent(
     text: string,
   ): Promise<{ hasBanned: boolean; matchedKeywords: string[] }> {
-    const activeBannedKeywords = await this.getActiveBannedKeywords();
+    const activeBannedKeywords = await this.getActiveList();
     const matchedKeywords: string[] = [];
 
     for (const bannedKeyword of activeBannedKeywords) {

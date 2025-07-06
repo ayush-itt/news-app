@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Article } from './article.entity';
-import { ReactionType } from '../../common/enums/reaction-type.enum';
+import { ReactionTypeEnum } from '../../common/enums/reaction-type.enum';
 
 @Entity('user_reactions')
 @Unique(['user', 'article'])
@@ -26,10 +26,10 @@ export class UserReaction {
 
   @Column({
     type: 'enum',
-    enum: ReactionType,
+    enum: ReactionTypeEnum,
     name: 'reaction_type',
   })
-  reactionType: ReactionType;
+  reactionType: ReactionTypeEnum;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })

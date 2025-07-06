@@ -3,6 +3,7 @@ import { UserPreferenceRepository } from '@/database/repositories/user-preferenc
 import { CategoryRepository } from '@/database/repositories/category.repository';
 import { UserPreference } from '@/database/entities/user-preference.entity';
 import { UpdateUserPreferenceDto } from './dto';
+import { IPreferenceData } from './interfaces';
 
 @Injectable()
 export class UserPreferencesService {
@@ -62,7 +63,7 @@ export class UserPreferencesService {
     const categories = await this.categoryRepository.findAll(true);
 
     // Set user preferences to inactive (unsubscribed) by default
-    const preferences = categories.map((category) => ({
+    const preferences: IPreferenceData[] = categories.map((category) => ({
       categoryId: category.id,
       isSubscribed: false,
     }));

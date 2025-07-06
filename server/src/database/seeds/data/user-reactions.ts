@@ -1,5 +1,5 @@
 import { UserReaction } from '../../entities/user-reaction.entity';
-import { ReactionType } from '@/common/enums/reaction-type.enum';
+import { ReactionTypeEnum } from '@/common/enums/reaction-type.enum';
 
 // Type for seeding data - based on UserReaction entity
 export type UserReactionSeedData = Omit<
@@ -8,33 +8,33 @@ export type UserReactionSeedData = Omit<
 > & {
   userId: number;
   articleId: number;
-  reactionType: ReactionType;
+  reactionType: ReactionTypeEnum;
 };
 
 export const userReactionsData: UserReactionSeedData[] = [
   {
     userId: 2,
     articleId: 1, // AI Revolution article
-    reactionType: ReactionType.LIKE,
+    reactionType: ReactionTypeEnum.LIKE,
   },
   {
     userId: 2,
     articleId: 2, // Climate Change article
-    reactionType: ReactionType.LIKE,
+    reactionType: ReactionTypeEnum.LIKE,
   },
   {
     userId: 2,
     articleId: 4, // Olympic Champion article
-    reactionType: ReactionType.LIKE,
+    reactionType: ReactionTypeEnum.LIKE,
   },
   {
     userId: 2,
     articleId: 6, // Hollywood Blockbuster article
-    reactionType: ReactionType.DISLIKE,
+    reactionType: ReactionTypeEnum.DISLIKE,
   },
   {
     userId: 2,
     articleId: 8, // Mental Health Initiative article
-    reactionType: ReactionType.LIKE,
+    reactionType: ReactionTypeEnum.LIKE,
   },
 ];

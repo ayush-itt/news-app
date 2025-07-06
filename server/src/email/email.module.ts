@@ -1,5 +1,6 @@
 import { Module, Global } from '@nestjs/common';
 import { EmailService } from './email.service';
+import { EmailTemplateService } from './email-template.helper';
 import {
   EmailTransporterFactory,
   EMAIL_TRANSPORTER,
@@ -18,6 +19,7 @@ import { AppConfigService } from '@/config/app-config/app-config.service';
       },
       inject: [AppConfigService],
     },
+    EmailTemplateService,
     EmailService,
   ],
   exports: [EmailService, EMAIL_TRANSPORTER],

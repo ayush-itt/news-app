@@ -16,7 +16,7 @@ export class CreateKeywordDto {
   })
   @IsInt({ message: 'Category ID must be an integer' })
   @IsNotEmpty({ message: 'Category ID is required' })
-  category_id: number;
+  categoryId: number;
 
   @ApiProperty({
     description: 'The keyword to track',
@@ -37,5 +37,5 @@ export class CreateKeywordDto {
   })
   @IsOptional()
   @IsBoolean()
-  is_active?: boolean;
+  isActive?: boolean;
 }

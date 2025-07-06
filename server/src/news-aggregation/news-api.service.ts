@@ -7,20 +7,14 @@ import {
   NewsSource,
   NewsSourceType,
 } from '@/database/entities/news-source.entity';
-
-// TheNewsAPI response interfaces
-interface TheNewsApiArticle {
-  title: string;
-  snippet: string;
-  url: string;
-  image_url: string | null;
-  published_at: string; // Keep as is - this is the API response format
-  source: string;
-  categories: string[];
-}
+import {
+  ITheNewsApiArticle,
+  ITheNewsApiResponse,
+  ICategoryMapping,
+} from './interfaces';
 
 @Injectable()
-export class SimpleNewsApiService {
+export class NewsApiService {
   private readonly API_KEY = 'GTZxjMgmvJ4PJR8vEU8ntK9ZGvL03ULMSZQGtM6d'; // Replace with actual API key
 
   constructor(
@@ -32,9 +26,7 @@ export class SimpleNewsApiService {
     private readonly newsSourceRepository: Repository<NewsSource>,
   ) {}
   async fetchAndStoreArticles(): Promise<void> {
-    console.log(
-      '[SimpleNewsApiService] Starting to fetch articles from TheNewsAPI',
-    );
+    console.log('[NewsApiService] Starting to fetch articles from TheNewsAPI');
 
     try {
       // Step 1: Get TheNewsAPI source configuration
@@ -46,13 +38,13 @@ export class SimpleNewsApiService {
       // Step 2: Fetch articles from TheNewsAPI
       const articles = await this.fetchFromTheNewsApi(newsSource);
       console.log(
-        `[SimpleNewsApiService] Fetched ${articles.length} articles from TheNewsAPI`,
+        `[NewsApiService] Fetched ${articles.length} articles from TheNewsAPI`,
       );
 
       // Step 3: Get available categories from DB
       const availableCategories = await this.getAvailableCategories();
       console.log(
-        `[SimpleNewsApiService] Found ${availableCategories.length} categories in DB`,
+        `[NewsApiService] Found ${availableCategories.length} categories in DB`,
       );
 
       // Step 4: Transform and store articles
@@ -63,7 +55,7 @@ export class SimpleNewsApiService {
           storedCount++;
         } catch (error) {
           console.error(
-            `[SimpleNewsApiService] Failed to store article: ${apiArticle.title}`,
+            `[NewsApiService] Failed to store article: ${apiArticle.title}`,
             error,
           );
         }
@@ -73,13 +65,10 @@ export class SimpleNewsApiService {
       await this.updateNewsSourceStatus(newsSource, null);
 
       console.log(
-        `[SimpleNewsApiService] Successfully stored ${storedCount} out of ${articles.length} articles`,
+        `[NewsApiService] Successfully stored ${storedCount} out of ${articles.length} articles`,
       );
     } catch (error) {
-      console.error(
-        '[SimpleNewsApiService] Error in fetchAndStoreArticles:',
-        error,
-      );
+      console.error('[NewsApiService] Error in fetchAndStoreArticles:', error);
       // Update error status
       const newsSource = await this.getTheNewsApiSource();
       if (newsSource) {
@@ -103,31 +92,26 @@ export class SimpleNewsApiService {
 
   private async fetchFromTheNewsApi(
     newsSource: NewsSource,
-  ): Promise<TheNewsApiArticle[]> {
+  ): Promise<ITheNewsApiArticle[]> {
     const apiKey = newsSource.apiKeyEnv || this.API_KEY;
-    const allArticles: TheNewsApiArticle[] = [];
+    const allArticles: ITheNewsApiArticle[] = [];
 
-    console.log(
-      '[SimpleNewsApiService] Making request to TheNewsAPI (pages 1-5)...',
-    );
+    console.log('[NewsApiService] Making request to TheNewsAPI (pages 1-5)...');
 
     try {
       // Iterate through pages 1 to 5
       for (let page = 1; page <= 5; page++) {
-        console.log(`[SimpleNewsApiService] Fetching page ${page}...`);
+        console.log(`[NewsApiService] Fetching page ${page}...`);
 
         const url = `${newsSource.baseUrl}?api_token=${apiKey}&locale=us&language=en&limit=3&page=${page}`;
 
         const response = await fetch(url);
-        const responseData = (await response.json()) as Record<
-          string,
-          TheNewsApiArticle[]
-        >;
+        const responseData = (await response.json()) as ITheNewsApiResponse;
 
         if (responseData.data) {
           const pageArticleCount = responseData.data.length;
           console.log(
-            `[SimpleNewsApiService] Page ${page}: Found ${pageArticleCount} articles`,
+            `[NewsApiService] Page ${page}: Found ${pageArticleCount} articles`,
           );
 
           for (const article of responseData.data) {
@@ -137,11 +121,11 @@ export class SimpleNewsApiService {
           // If we get fewer articles than requested, we might have reached the end
           if (pageArticleCount < 3) {
             console.log(
-              `[SimpleNewsApiService] Page ${page}: Fewer articles than expected, might be the last page`,
+              `[NewsApiService] Page ${page}: Fewer articles than expected, might be the last page`,
             );
           }
         } else {
-          console.log(`[SimpleNewsApiService] Page ${page}: No data returned`);
+          console.log(`[NewsApiService] Page ${page}: No data returned`);
         }
 
         // Add a small delay between requests to be respectful to the API
@@ -151,14 +135,11 @@ export class SimpleNewsApiService {
       }
 
       console.log(
-        `[SimpleNewsApiService] Total articles fetched from all pages: ${allArticles.length}`,
+        `[NewsApiService] Total articles fetched from all pages: ${allArticles.length}`,
       );
       return allArticles;
     } catch (error) {
-      console.error(
-        '[SimpleNewsApiService] Error fetching from TheNewsAPI:',
-        error,
-      );
+      console.error('[NewsApiService] Error fetching from TheNewsAPI:', error);
       throw error;
     }
   }
@@ -179,13 +160,13 @@ export class SimpleNewsApiService {
   }
 
   private async transformAndStoreArticle(
-    apiArticle: TheNewsApiArticle,
+    apiArticle: ITheNewsApiArticle,
     availableCategories: Category[],
   ): Promise<void> {
     // Skip articles with missing required fields
     if (!apiArticle.title || !apiArticle.url || !apiArticle.published_at) {
       console.warn(
-        '[SimpleNewsApiService] Skipping article with missing required fields',
+        '[NewsApiService] Skipping article with missing required fields',
       );
       return;
     }
@@ -196,7 +177,7 @@ export class SimpleNewsApiService {
 
     if (existingArticle) {
       console.log(
-        `[SimpleNewsApiService] Article already exists: ${apiArticle.title}`,
+        `[NewsApiService] Article already exists: ${apiArticle.title}`,
       );
       return;
     }
@@ -215,17 +196,17 @@ export class SimpleNewsApiService {
 
     // Save the article
     await this.articleRepository.save(article);
-    console.log(`[SimpleNewsApiService] Stored article: ${article.title}`);
+    console.log(`[NewsApiService] Stored article: ${article.title}`);
   }
 
   private mapCategories(
-    apiArticle: TheNewsApiArticle,
+    apiArticle: ITheNewsApiArticle,
     availableCategories: Category[],
   ): Category[] {
     const mappedCategories: Category[] = [];
 
     // Create a mapping of API categories to our database categories
-    const categoryMapping: Record<string, string> = {
+    const categoryMapping: ICategoryMapping = {
       general: 'General',
       tech: 'Technology',
       technology: 'Technology',

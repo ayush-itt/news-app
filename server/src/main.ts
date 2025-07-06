@@ -9,7 +9,7 @@ import { AppConfigService } from './config/app-config/app-config.service';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const appConfigService = app.get<AppConfigService>(AppConfigService);
-  const SERVER_PORT: number = appConfigService.getPort();
+  const SERVER_PORT: number = appConfigService.getServerPort();
 
   const config = new DocumentBuilder()
     .setTitle('NEWS APP API')
@@ -36,11 +36,6 @@ async function bootstrap(): Promise<void> {
       transform: true,
     }),
   );
-  app.enableCors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
 
   await app.listen(SERVER_PORT, () => {
     console.log(`Application is running at http://localhost:${SERVER_PORT}`);

@@ -22,13 +22,13 @@ export class KeywordsService {
     createDto: CreateKeywordDto,
   ): Promise<Keyword> {
     // Verify category exists
-    await this.categoriesService.getCategoryById(createDto.category_id);
+    await this.categoriesService.getCategoryById(createDto.categoryId);
 
     // Check if user already has this keyword for this category
     const existingKeyword =
       await this.keywordRepository.existsByUserCategoryKeyword(
         userId,
-        createDto.category_id,
+        createDto.categoryId,
         createDto.keyword.toLowerCase().trim(),
       );
 
@@ -40,9 +40,10 @@ export class KeywordsService {
 
     try {
       const keyword = await this.keywordRepository.create({
-        ...createDto,
         userId: userId,
+        categoryId: createDto.categoryId,
         keyword: createDto.keyword.toLowerCase().trim(),
+        isActive: createDto.isActive ?? true,
       });
 
       return keyword;

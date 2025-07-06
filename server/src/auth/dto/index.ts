@@ -1,4 +1,4 @@
-export { AuthResponse } from './auth-response.dto';
+export { AuthResponseDto } from './auth-response.dto';
 export { LoginDto } from './login.dto';
-export { LoginResponse } from './login-response.dto';
-export { LogoutResponse } from './logout-response.dto';
+export { LoginResponseDto } from './login-response.dto';
+export { LogoutResponseDto } from './logout-response.dto';

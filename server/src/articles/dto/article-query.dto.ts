@@ -10,8 +10,9 @@ import {
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { PAGINATION } from '@/common/constants/pagination.constants';
+import { IArticleQuery } from '../interfaces';
 
-export class ArticleQueryDto {
+export class ArticleQueryDto implements IArticleQuery {
   @ApiPropertyOptional({
     description: 'Page number for pagination',
     example: PAGINATION.DEFAULT_PAGE,

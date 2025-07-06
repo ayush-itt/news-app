@@ -5,3 +5,4 @@ export {
   AdminReportController,
 } from './article-report.controller';
 export * from './dto';
+export * from './interfaces';

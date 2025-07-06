@@ -40,9 +40,6 @@ import {
 export class ArticleReportController {
   constructor(private readonly articleReportService: ArticleReportService) {}
 
-  /**
-   * Report an article (User endpoint)
-   */
   @ApiOperation({
     summary: 'Report an article for inappropriate content',
     description:
@@ -137,7 +134,7 @@ export class ArticleReportController {
     @Body() createReportDto: CreateArticleReportDto,
   ) {
     const userId = req.user.id;
-    const report = await this.articleReportService.reportArticle(
+    const report = await this.articleReportService.createReport(
       articleId,
       userId,
       createReportDto,
@@ -155,9 +152,6 @@ export class ArticleReportController {
     };
   }
 
-  /**
-   * Get report count for an article (Public for transparency)
-   */
   @Get(':id/reports/count')
   @ApiOperation({
     summary: 'Get report count for an article',
@@ -186,14 +180,15 @@ export class ArticleReportController {
       },
     },
   })
-  async getReportCount(@Param('id', ParseIntPipe) articleId: number) {
-    const count = await this.articleReportService.getReportCount(articleId);
+  async getArticleReportCount(@Param('id', ParseIntPipe) articleId: number) {
+    const reportCount =
+      await this.articleReportService.countReportsByArticleId(articleId);
 
     return {
       statusCode: HttpStatus.OK,
       data: {
         articleId,
-        reportCount: count,
+        reportCount: reportCount,
       },
     };
   }
@@ -289,8 +284,9 @@ export class AdminReportController {
       },
     },
   })
-  async getAllReports(@Query() query: GetReportsQueryDto) {
-    const result = await this.articleReportService.getAllReports(query);
+  async getAllArticleReports(@Query() query: GetReportsQueryDto) {
+    const result =
+      await this.articleReportService.getAllReportsWithPagination(query);
 
     return {
       statusCode: HttpStatus.OK,
@@ -363,9 +359,9 @@ export class AdminReportController {
       },
     },
   })
-  async getReportsByArticle(@Param('id', ParseIntPipe) articleId: number) {
+  async getArticleReports(@Param('id', ParseIntPipe) articleId: number) {
     const reports =
-      await this.articleReportService.getReportsByArticleId(articleId);
+      await this.articleReportService.findReportsByArticleId(articleId);
 
     return {
       statusCode: HttpStatus.OK,
@@ -432,8 +428,8 @@ export class AdminReportController {
       },
     },
   })
-  async getReportsByUser(@Param('id', ParseIntPipe) userId: number) {
-    const reports = await this.articleReportService.getReportsByUserId(userId);
+  async getUserReports(@Param('id', ParseIntPipe) userId: number) {
+    const reports = await this.articleReportService.findReportsByUserId(userId);
 
     return {
       statusCode: HttpStatus.OK,

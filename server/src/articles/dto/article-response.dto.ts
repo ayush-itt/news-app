@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CategoryResponseDto } from '@/categories/dto/category-response.dto';
 import { Article } from '@/database/entities/article.entity';
-import { PaginatedResult } from '../interfaces';
+import { IPaginatedResponse } from '../interfaces';
+import { IArticleResponse } from '../interfaces';
 
-export class ArticleResponseDto {
+export class ArticleResponseDto implements IArticleResponse {
   @ApiProperty({
     description: 'Unique identifier for the article',
     example: 1,
@@ -112,7 +113,7 @@ export class PaginatedArticleResponseDto {
   totalPages: number;
 
   static fromPaginatedResult(
-    result: PaginatedResult<Article>,
+    result: IPaginatedResponse<Article>,
   ): PaginatedArticleResponseDto {
     const dto = new PaginatedArticleResponseDto();
     dto.data = result.data.map((article) =>

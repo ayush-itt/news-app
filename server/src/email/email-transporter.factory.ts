@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AppConfigService } from '@/config/app-config/app-config.service';
 import * as nodemailer from 'nodemailer';
+import { IEmailTransporterConfig } from './interfaces';
 
 export const EMAIL_TRANSPORTER = 'EMAIL_TRANSPORTER';
 
@@ -12,7 +13,7 @@ export class EmailTransporterFactory {
     appConfigService: AppConfigService,
   ): Promise<nodemailer.Transporter> {
     try {
-      const transporter = nodemailer.createTransport({
+      const config: IEmailTransporterConfig = {
         host: appConfigService.getMailHost(),
         port: appConfigService.getMailPort(),
         secure: appConfigService.getMailSecure(),
@@ -20,7 +21,9 @@ export class EmailTransporterFactory {
           user: appConfigService.getMailUser(),
           pass: appConfigService.getMailPassword(),
         },
-      });
+      };
+
+      const transporter = nodemailer.createTransport(config);
 
       // Verify the connection
       await transporter.verify();

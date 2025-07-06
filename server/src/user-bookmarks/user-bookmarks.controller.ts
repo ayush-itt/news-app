@@ -14,6 +14,7 @@ import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../database/entities/user.entity';
 import { BookmarkResponseDto, BookmarkStatusDto } from './dto';
 import { Auth } from '@/auth/decorators';
+import { IBookmarkCheckResult } from './interfaces';
 
 @ApiTags('User Bookmarks')
 @Controller('user-bookmarks')
@@ -40,13 +41,7 @@ export class UserBookmarksController {
       user.id,
       articleId,
     );
-    return {
-      id: bookmark.id,
-      userId: bookmark.userId,
-      articleId: bookmark.articleId,
-      article: bookmark.article,
-      createdAt: bookmark.createdAt,
-    };
+    return BookmarkResponseDto.fromEntity(bookmark);
   }
 
   @Delete(':articleId')
@@ -81,13 +76,7 @@ export class UserBookmarksController {
     @GetUser() user: User,
   ): Promise<BookmarkResponseDto[]> {
     const bookmarks = await this.userBookmarksService.getUserBookmarks(user.id);
-    return bookmarks.map((bookmark) => ({
-      id: bookmark.id,
-      userId: bookmark.userId,
-      articleId: bookmark.articleId,
-      article: bookmark.article,
-      createdAt: bookmark.createdAt,
-    }));
+    return BookmarkResponseDto.fromEntities(bookmarks);
   }
 
   @Get('check/:articleId')
@@ -107,7 +96,7 @@ export class UserBookmarksController {
   async isArticleBookmarked(
     @GetUser() user: User,
     @Param('articleId', ParseIntPipe) articleId: number,
-  ): Promise<{ isBookmarked: boolean; articleId: number }> {
+  ): Promise<IBookmarkCheckResult> {
     const isBookmarked =
       await this.userBookmarksService.isArticleBookmarkedByUser(
         user.id,

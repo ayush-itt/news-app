@@ -1,15 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import {
+  IServerConfig,
+  IEnvironmentConfig,
+  IDatabaseConfig,
+  IJwtConfig,
+  IMailConfig,
+  IConfigService,
+} from '../interfaces';
 
 @Injectable()
-export class AppConfigService {
+export class AppConfigService implements IConfigService {
   constructor(private readonly configService: ConfigService) {}
 
-  public getPort(): number {
+  public getServerPort(): number {
     return Number(this.getValue('SERVER_PORT'));
   }
 
-  public getNodeEnv(): string {
+  public getEnvironment(): string {
     return this.getValue('NODE_ENV', false) || 'development';
   }
 
@@ -35,11 +43,11 @@ export class AppConfigService {
 
   // Environment utility methods
   public isDevelopment(): boolean {
-    return this.getNodeEnv() === 'development';
+    return this.getEnvironment() === 'development';
   }
 
   public isProduction(): boolean {
-    return this.getNodeEnv() === 'production';
+    return this.getEnvironment() === 'production';
   }
 
   public getJwtSecret(): string {
@@ -77,6 +85,62 @@ export class AppConfigService {
 
   public getMailFromAddress(): string {
     return this.getValue('MAIL_FROM_ADDRESS');
+  }
+
+  // Grouped configuration methods
+  public getServerConfig(): IServerConfig {
+    return {
+      port: this.getServerPort(),
+      environment: this.getEnvironment(),
+    };
+  }
+
+  public getDatabaseConfig(): IDatabaseConfig {
+    return {
+      host: this.getDatabaseHost(),
+      port: this.getDatabasePort(),
+      username: this.getDatabaseUsername(),
+      password: this.getDatabasePassword(),
+      name: this.getDatabaseName(),
+    };
+  }
+
+  public getJwtConfig(): IJwtConfig {
+    return {
+      secret: this.getJwtSecret(),
+      expiresIn: this.getJwtExpiresIn(),
+    };
+  }
+
+  public getMailConfig(): IMailConfig {
+    return {
+      host: this.getMailHost(),
+      port: this.getMailPort(),
+      secure: this.getMailSecure(),
+      user: this.getMailUser(),
+      password: this.getMailPassword(),
+      fromName: this.getMailFromName(),
+      fromAddress: this.getMailFromAddress(),
+    };
+  }
+
+  public getEnvironmentConfig(): IEnvironmentConfig {
+    return {
+      isDevelopment: this.isDevelopment(),
+      isProduction: this.isProduction(),
+      nodeEnv: this.getEnvironment(),
+    };
+  }
+
+  // Legacy methods (deprecated - use grouped config methods instead)
+  /** @deprecated Use getServerPort() instead */
+  public getPort(): number {
+    return this.getServerPort();
+  }
+
+  /** @deprecated Use getEnvironment() instead */
+  public getNodeEnv(): string {
+    return this.getEnvironment();
   }
 
   private getValue(key: string, throwOnMissing = true): string {

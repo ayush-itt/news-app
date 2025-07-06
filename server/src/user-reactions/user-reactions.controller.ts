@@ -56,15 +56,7 @@ export class UserReactionsController {
 
     if (reaction) {
       // Reaction created or updated
-      return {
-        id: reaction.id,
-        userId: reaction.userId,
-        articleId: reaction.articleId,
-        reactionType: reaction.reactionType,
-        article: reaction.article,
-        createdAt: reaction.createdAt,
-        updatedAt: reaction.updatedAt,
-      };
+      return ReactionResponseDto.fromEntity(reaction);
     } else {
       // Reaction removed (toggle off)
       return {
@@ -85,15 +77,7 @@ export class UserReactionsController {
     @GetUser() user: User,
   ): Promise<ReactionResponseDto[]> {
     const reactions = await this.userReactionsService.getUserReactions(user.id);
-    return reactions.map((reaction) => ({
-      id: reaction.id,
-      userId: reaction.userId,
-      articleId: reaction.articleId,
-      reactionType: reaction.reactionType,
-      article: reaction.article,
-      createdAt: reaction.createdAt,
-      updatedAt: reaction.updatedAt,
-    }));
+    return ReactionResponseDto.fromEntities(reactions);
   }
 
   @Get('likes')
@@ -109,15 +93,7 @@ export class UserReactionsController {
     const reactions = await this.userReactionsService.getUserLikedArticles(
       user.id,
     );
-    return reactions.map((reaction) => ({
-      id: reaction.id,
-      userId: reaction.userId,
-      articleId: reaction.articleId,
-      reactionType: reaction.reactionType,
-      article: reaction.article,
-      createdAt: reaction.createdAt,
-      updatedAt: reaction.updatedAt,
-    }));
+    return ReactionResponseDto.fromEntities(reactions);
   }
 
   @Get('dislikes')
@@ -133,15 +109,7 @@ export class UserReactionsController {
     const reactions = await this.userReactionsService.getUserDislikedArticles(
       user.id,
     );
-    return reactions.map((reaction) => ({
-      id: reaction.id,
-      userId: reaction.userId,
-      articleId: reaction.articleId,
-      reactionType: reaction.reactionType,
-      article: reaction.article,
-      createdAt: reaction.createdAt,
-      updatedAt: reaction.updatedAt,
-    }));
+    return ReactionResponseDto.fromEntities(reactions);
   }
 
   @Get('stats/:articleId')
@@ -187,14 +155,6 @@ export class UserReactionsController {
       return null;
     }
 
-    return {
-      id: reaction.id,
-      userId: reaction.userId,
-      articleId: reaction.articleId,
-      reactionType: reaction.reactionType,
-      article: reaction.article,
-      createdAt: reaction.createdAt,
-      updatedAt: reaction.updatedAt,
-    };
+    return ReactionResponseDto.fromEntity(reaction);
   }
 }

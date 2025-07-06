@@ -2,31 +2,11 @@ import { Injectable, Logger, Inject } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { AppConfigService } from '@/config/app-config/app-config.service';
 import { EMAIL_TRANSPORTER } from './email-transporter.factory';
-import { EmailTemplateHelper } from './email-template.helper';
+import { EmailTemplateService } from './email-template.helper';
+import { IEmailNotificationData, IGenericEmailData } from './interfaces';
 
-export interface EmailNotificationData {
-  userId: number;
-  userEmail: string;
-  userName: string;
-  articles: {
-    id: number;
-    title: string;
-    url: string;
-    category?: string;
-    keyword?: string;
-  }[];
-}
-
-export interface GenericEmailData {
-  to: string;
-  subject: string;
-  text?: string;
-  html?: string;
-  from?: {
-    name: string;
-    address: string;
-  };
-}
+export type { IEmailNotificationData as EmailNotificationData };
+export type { IGenericEmailData as GenericEmailData };
 
 @Injectable()
 export class EmailService {
@@ -34,6 +14,7 @@ export class EmailService {
 
   constructor(
     private readonly appConfigService: AppConfigService,
+    private readonly emailTemplateService: EmailTemplateService,
     @Inject(EMAIL_TRANSPORTER)
     private readonly transporter: nodemailer.Transporter,
   ) {}
@@ -41,7 +22,7 @@ export class EmailService {
   /**
    * Generic method to send any email to any address
    */
-  async sendEmail(emailData: GenericEmailData): Promise<boolean> {
+  async sendEmail(emailData: IGenericEmailData): Promise<boolean> {
     try {
       const mailOptions = {
         from: emailData.from || {
@@ -69,11 +50,11 @@ export class EmailService {
   /**
    * Specific method for notification emails (uses generic sendEmail internally)
    */
-  async sendNotificationEmail(data: EmailNotificationData): Promise<boolean> {
-    const htmlContent = EmailTemplateHelper.generateHtmlTemplate(data);
-    const textContent = EmailTemplateHelper.generateTextTemplate(data);
+  async sendNotificationEmail(data: IEmailNotificationData): Promise<boolean> {
+    const htmlContent = this.emailTemplateService.generateHtmlTemplate(data);
+    const textContent = this.emailTemplateService.generateTextTemplate(data);
 
-    const emailData: GenericEmailData = {
+    const emailData: IGenericEmailData = {
       to: data.userEmail,
       subject: `New Articles Available - ${data.articles.length} article(s)`,
       text: textContent,

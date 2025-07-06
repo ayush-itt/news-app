@@ -11,6 +11,7 @@ import { UserRepository } from '../database/repositories';
 import { UserPreferencesService } from '../user-preferences/user-preferences.service';
 import { AUTH } from '@/common/constants/auth.constants';
 import { PAGINATION } from '../common/constants/pagination.constants';
+import { IUserServiceResponse, IUpdateUserServiceResponse } from './interfaces';
 
 @Injectable()
 export class UsersService {
@@ -65,7 +66,7 @@ export class UsersService {
     return await this.userRepository.deleteById(id);
   }
 
-  async register(registerRequest: RegisterDto): Promise<{ message: string }> {
+  async register(registerRequest: RegisterDto): Promise<IUserServiceResponse> {
     const { username, email } = registerRequest;
 
     const userExists = await this.checkIfUserExists(username, email);
@@ -94,7 +95,7 @@ export class UsersService {
   async updateUserById(
     id: number,
     updateUserDto: UpdateUserDto,
-  ): Promise<{ message: string; user: User }> {
+  ): Promise<IUpdateUserServiceResponse> {
     // Check if user exists
     const existingUser = await this.userRepository.findById(id);
     if (!existingUser) {
@@ -147,7 +148,7 @@ export class UsersService {
     }
   }
 
-  async deleteUserById(id: number): Promise<{ message: string }> {
+  async deleteUserById(id: number): Promise<IUserServiceResponse> {
     // Check if user exists
     const existingUser = await this.userRepository.findById(id);
     if (!existingUser) {

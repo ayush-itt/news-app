@@ -1,7 +1,8 @@
 import { IsString, IsOptional, IsBoolean, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IBannedKeywordUpdate } from '../interfaces';
 
-export class UpdateBannedKeywordDto {
+export class UpdateBannedKeywordDto implements IBannedKeywordUpdate {
   @ApiProperty({
     description: 'The keyword or phrase to ban from articles',
     example: 'inappropriate-word',

@@ -6,8 +6,9 @@ import {
   MinLength,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IBannedKeywordCreation } from '../interfaces';
 
-export class CreateBannedKeywordDto {
+export class CreateBannedKeywordDto implements IBannedKeywordCreation {
   @ApiProperty({
     description: 'The keyword or phrase to ban from articles',
     example: 'inappropriate-word',

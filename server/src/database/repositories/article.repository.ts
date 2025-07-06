@@ -4,9 +4,9 @@ import { Article } from '../entities/article.entity';
 import { CreateArticleDto } from '@/articles/dto/create-article.dto';
 import { UpdateArticleDto } from '@/articles/dto/update-article.dto';
 import {
-  ArticleFilters,
-  PaginationOptions,
-  PaginatedResult,
+  IArticleFilters,
+  IPaginationOptions,
+  IPaginatedResponse,
 } from '@/articles/interfaces';
 
 @Injectable()
@@ -21,9 +21,9 @@ export class ArticleRepository extends Repository<Article> {
   }
 
   async findAllPaginated(
-    filters: ArticleFilters = {},
-    pagination: PaginationOptions,
-  ): Promise<PaginatedResult<Article>> {
+    filters: IArticleFilters = {},
+    pagination: IPaginationOptions,
+  ): Promise<IPaginatedResponse<Article>> {
     const queryBuilder = this.createFilteredQuery(filters);
 
     const total = await queryBuilder.getCount();
@@ -85,8 +85,8 @@ export class ArticleRepository extends Repository<Article> {
 
   async findByCategory(
     categoryId: number,
-    pagination: PaginationOptions,
-  ): Promise<PaginatedResult<Article>> {
+    pagination: IPaginationOptions,
+  ): Promise<IPaginatedResponse<Article>> {
     return await this.findAllPaginated(
       { categoryIds: [categoryId] },
       pagination,
@@ -95,13 +95,13 @@ export class ArticleRepository extends Repository<Article> {
 
   async searchArticles(
     searchTerm: string,
-    pagination: PaginationOptions,
-  ): Promise<PaginatedResult<Article>> {
+    pagination: IPaginationOptions,
+  ): Promise<IPaginatedResponse<Article>> {
     return await this.findAllPaginated({ search: searchTerm }, pagination);
   }
 
   private createFilteredQuery(
-    filters: ArticleFilters,
+    filters: IArticleFilters,
   ): SelectQueryBuilder<Article> {
     const queryBuilder = this.createQueryBuilder('article').leftJoinAndSelect(
       'article.categories',

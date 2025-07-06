@@ -1,8 +1,9 @@
 import { IsOptional, IsString, IsEnum, IsNumber } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { IReportsQuery } from '../interfaces';
 
-export class GetReportsQueryDto {
+export class GetReportsQueryDto implements IReportsQuery {
   @ApiProperty({
     description: 'Page number for pagination (starting from 1)',
     example: 1,

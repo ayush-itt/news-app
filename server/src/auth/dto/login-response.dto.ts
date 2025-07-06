@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ILoginResponse, IUserInfo } from '../interfaces';
 
-export class LoginResponse {
+export class LoginResponseDto implements ILoginResponse {
   @ApiProperty({
     description: 'Authentication success message',
     example: 'Login successful',
@@ -22,10 +23,5 @@ export class LoginResponse {
       role: 'USER',
     },
   })
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    role: string;
-  };
+  user: IUserInfo;
 }

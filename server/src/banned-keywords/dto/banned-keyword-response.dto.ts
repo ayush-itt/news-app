@@ -1,6 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  IBannedKeywordResponse,
+  IBannedKeywordListResponse,
+} from '../interfaces';
 
-export class BannedKeywordResponseDto {
+export class BannedKeywordResponseDto implements IBannedKeywordResponse {
   @ApiProperty({
     description: 'Unique identifier for the banned keyword',
     example: 123,
@@ -51,7 +55,9 @@ export class BannedKeywordResponseDto {
   updatedAt: Date;
 }
 
-export class BannedKeywordListResponseDto {
+export class BannedKeywordListResponseDto
+  implements IBannedKeywordListResponse
+{
   @ApiProperty({
     description: 'List of banned keywords',
     type: [BannedKeywordResponseDto],

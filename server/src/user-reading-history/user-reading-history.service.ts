@@ -13,6 +13,7 @@ import {
   GetReadingHistoryQueryDto,
   ReadingHistoryListResponseDto,
 } from './dto';
+import { IReadingHistoryResponse, IMostReadArticle } from './interfaces';
 
 @Injectable()
 export class UserReadingHistoryService {
@@ -23,15 +24,11 @@ export class UserReadingHistoryService {
     private readonly articleRepository: ArticleRepository,
   ) {}
 
-  /**
-   * Record a new reading history entry
-   */
   async recordReading(
     userId: number,
     createDto: CreateReadingHistoryDto,
     user: User,
   ): Promise<UserReadingHistory> {
-    // Verify the article exists
     const article = await this.articleRepository.findByIdWithCategories(
       createDto.articleId,
     );
@@ -41,14 +38,12 @@ export class UserReadingHistoryService {
       );
     }
 
-    // For non-admin users, check if article is active
     if (user?.role?.name !== 'admin' && !article.isActive) {
       throw new NotFoundException(
         `Article with ID ${createDto.articleId} not found`,
       );
     }
 
-    // Create reading history entry
     const readingHistory = await this.readingHistoryRepository.create({
       userId,
       articleId: createDto.articleId,
@@ -61,9 +56,6 @@ export class UserReadingHistoryService {
     return readingHistory;
   }
 
-  /**
-   * Get user's reading history with pagination and filtering
-   */
   async getUserReadingHistory(
     userId: number,
     queryDto: GetReadingHistoryQueryDto,
@@ -71,7 +63,6 @@ export class UserReadingHistoryService {
     let result;
 
     if (queryDto.startDate && queryDto.endDate) {
-      // Filter by date range
       const startDate = new Date(queryDto.startDate);
       const endDate = new Date(queryDto.endDate);
 
@@ -91,7 +82,6 @@ export class UserReadingHistoryService {
         total: history.length,
       };
     } else {
-      // Get paginated results
       result = await this.readingHistoryRepository.findByUserId(
         userId,
         queryDto.page,
@@ -110,16 +100,10 @@ export class UserReadingHistoryService {
     };
   }
 
-  /**
-   * Get reading count for a user (simplified stats)
-   */
   async getUserReadingCount(userId: number): Promise<number> {
     return this.readingHistoryRepository.getUserReadingCount(userId);
   }
 
-  /**
-   * Check if user has read a specific article
-   */
   async hasUserReadArticle(
     userId: number,
     articleId: number,
@@ -127,29 +111,20 @@ export class UserReadingHistoryService {
     return this.readingHistoryRepository.hasUserReadArticle(userId, articleId);
   }
 
-  /**
-   * Get user's most read articles
-   */
-  async getMostReadArticles(userId: number, limit: number = 10) {
+  async getMostReadArticles(
+    userId: number,
+    limit: number = 10,
+  ): Promise<IMostReadArticle[]> {
     return this.readingHistoryRepository.getMostReadArticlesByUser(
       userId,
       limit,
     );
   }
 
-  /**
-   * Get reading recommendations based on user's reading history
-   * This is a basic implementation - can be enhanced with ML algorithms
-   */
   async getPersonalizedRecommendations(userId: number, limit: number = 10) {
-    // For now, return empty array since this requires ArticlesService
-    // This method can be enhanced later with proper recommendation logic
     return [];
   }
 
-  /**
-   * Delete user's reading history (for privacy/GDPR compliance)
-   */
   async deleteUserReadingHistory(userId: number): Promise<void> {
     const deletedCount =
       await this.readingHistoryRepository.deleteByUserId(userId);
@@ -158,9 +133,6 @@ export class UserReadingHistoryService {
     );
   }
 
-  /**
-   * Clean up old reading history entries
-   */
   async cleanupOldHistory(days: number = 365): Promise<number> {
     const deletedCount =
       await this.readingHistoryRepository.deleteOlderThan(days);
@@ -170,9 +142,6 @@ export class UserReadingHistoryService {
     return deletedCount;
   }
 
-  /**
-   * Get all users' reading history (admin only)
-   */
   async getAllUsersReadingHistory(
     queryDto: GetReadingHistoryQueryDto,
   ): Promise<ReadingHistoryListResponseDto> {
@@ -185,7 +154,6 @@ export class UserReadingHistoryService {
     };
 
     if (startDate && endDate) {
-      // Filter by date range for all users or specific user
       const startDateObj = new Date(startDate);
       const endDateObj = new Date(endDate);
 
@@ -194,7 +162,6 @@ export class UserReadingHistoryService {
       }
 
       if (userId) {
-        // Get specific user's history within date range
         const history =
           await this.readingHistoryRepository.findByUserAndDateRange(
             userId,
@@ -203,7 +170,6 @@ export class UserReadingHistoryService {
           );
         result = { history, total: history.length };
       } else {
-        // Get all users' history within date range
         result = await this.readingHistoryRepository.findAllByDateRange(
           startDateObj,
           endDateObj,
@@ -212,7 +178,6 @@ export class UserReadingHistoryService {
         );
       }
     } else {
-      // Get all history with pagination
       if (userId) {
         result = await this.readingHistoryRepository.findByUserPaginated(
           userId,
@@ -241,12 +206,8 @@ export class UserReadingHistoryService {
     };
   }
 
-  /**
-   * Automatically record reading history when a user views an article
-   */
   async recordAutoReading(userId: number, articleId: number): Promise<void> {
     try {
-      // Check if this user already has a reading entry for this article today
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const tomorrow = new Date(today);
@@ -261,7 +222,6 @@ export class UserReadingHistoryService {
         );
 
       if (!existingEntry) {
-        // Create a basic reading history entry
         await this.readingHistoryRepository.create({
           userId,
           articleId,
@@ -272,7 +232,6 @@ export class UserReadingHistoryService {
         );
       }
     } catch (error) {
-      // Log error but don't throw to avoid disrupting article viewing
       this.logger.error(
         `Failed to auto-record reading history for user ${userId}, article ${articleId}:`,
         error,
@@ -280,10 +239,9 @@ export class UserReadingHistoryService {
     }
   }
 
-  /**
-   * Map entity to response DTO
-   */
-  private mapToResponseDto(history: UserReadingHistory): any {
+  private mapToResponseDto(
+    history: UserReadingHistory,
+  ): IReadingHistoryResponse {
     return {
       id: history.id,
       userId: history.userId,

@@ -10,6 +10,7 @@ import {
   NewsSourceType,
 } from '../database/entities/news-source.entity';
 import { CreateNewsSourceDto, UpdateNewsSourceDto } from './dto';
+import { INewsSourceStatistics, INewsSourceHealth } from './interfaces';
 
 @Injectable()
 export class NewsSourcesService {
@@ -109,21 +110,11 @@ export class NewsSourcesService {
     return updatedSource;
   }
 
-  async getSourcesStatistics(): Promise<{
-    total: number;
-    active: number;
-    inactive: number;
-  }> {
+  async getSourcesStatistics(): Promise<INewsSourceStatistics> {
     return await this.newsSourceRepository.getSourcesStatistics();
   }
 
-  async checkSourceHealth(id: number): Promise<{
-    id: number;
-    name: string;
-    lastFetchAt: Date | null;
-    lastError: string | null;
-    isHealthy: boolean;
-  }> {
+  async checkSourceHealth(id: number): Promise<INewsSourceHealth> {
     const source = await this.findNewsSourceById(id);
 
     const isHealthy = source.isActive && !source.lastError;

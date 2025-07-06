@@ -2,7 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserReactionRepository } from '../database/repositories/user-reaction.repository';
 import { ArticleRepository } from '../database/repositories/article.repository';
 import { UserReaction } from '../database/entities/user-reaction.entity';
-import { ReactionType } from '../common/enums/reaction-type.enum';
+import { ReactionTypeEnum } from '../common/enums/reaction-type.enum';
+import { IArticleReactionStats } from './interfaces';
 
 @Injectable()
 export class UserReactionsService {
@@ -14,7 +15,7 @@ export class UserReactionsService {
   async reactToArticle(
     userId: number,
     articleId: number,
-    reactionType: ReactionType,
+    reactionType: ReactionTypeEnum,
   ): Promise<UserReaction | null> {
     // Verify article exists
     const article =
@@ -59,21 +60,20 @@ export class UserReactionsService {
   async getUserLikedArticles(userId: number): Promise<UserReaction[]> {
     return await this.userReactionRepository.findUserReactionsByType(
       userId,
-      ReactionType.LIKE,
+      ReactionTypeEnum.LIKE,
     );
   }
 
   async getUserDislikedArticles(userId: number): Promise<UserReaction[]> {
     return await this.userReactionRepository.findUserReactionsByType(
       userId,
-      ReactionType.DISLIKE,
+      ReactionTypeEnum.DISLIKE,
     );
   }
 
-  async getArticleReactionStats(articleId: number): Promise<{
-    likes: number;
-    dislikes: number;
-  }> {
+  async getArticleReactionStats(
+    articleId: number,
+  ): Promise<IArticleReactionStats> {
     const article =
       await this.articleRepository.findByIdWithCategories(articleId);
     if (!article) {

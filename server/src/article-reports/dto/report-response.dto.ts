@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  IArticleReportResponse,
+  IReportCountResponse,
+  IReportSummaryResponse,
+  IPaginatedReportsResponse,
+} from '../interfaces';
 
-export class ArticleReportResponseDto {
+export class ArticleReportResponseDto implements IArticleReportResponse {
   @ApiProperty({
     description: 'Report ID',
     example: 123,
@@ -34,7 +40,7 @@ export class ArticleReportResponseDto {
   createdAt: Date;
 }
 
-export class ReportCountResponseDto {
+export class ReportCountResponseDto implements IReportCountResponse {
   @ApiProperty({
     description: 'Article ID',
     example: 456,
@@ -48,7 +54,7 @@ export class ReportCountResponseDto {
   reportCount: number;
 }
 
-export class ReportSummaryDto {
+export class ReportSummaryDto implements IReportSummaryResponse {
   @ApiProperty({
     description: 'Total number of reports',
     example: 50,
@@ -68,7 +74,7 @@ export class ReportSummaryDto {
   resolvedReports: number;
 }
 
-export class PaginatedReportsResponseDto {
+export class PaginatedReportsResponseDto implements IPaginatedReportsResponse {
   @ApiProperty({
     description: 'Array of reports',
     type: [ArticleReportResponseDto],

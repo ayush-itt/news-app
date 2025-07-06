@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserReaction } from '../entities/user-reaction.entity';
-import { ReactionType } from '../../common/enums/reaction-type.enum';
+import { ReactionTypeEnum } from '../../common/enums/reaction-type.enum';
 
 @Injectable()
 export class UserReactionRepository {
@@ -24,7 +24,7 @@ export class UserReactionRepository {
   async createReaction(
     userId: number,
     articleId: number,
-    reactionType: ReactionType,
+    reactionType: ReactionTypeEnum,
   ): Promise<UserReaction> {
     const reaction = this.repository.create({
       userId,
@@ -36,7 +36,7 @@ export class UserReactionRepository {
 
   async updateReaction(
     id: number,
-    reactionType: ReactionType,
+    reactionType: ReactionTypeEnum,
   ): Promise<UserReaction> {
     await this.repository.update(id, { reactionType });
     return await this.repository.findOne({
@@ -60,7 +60,7 @@ export class UserReactionRepository {
 
   async findUserReactionsByType(
     userId: number,
-    reactionType: ReactionType,
+    reactionType: ReactionTypeEnum,
   ): Promise<UserReaction[]> {
     return await this.repository.find({
       where: { userId, reactionType },
@@ -71,7 +71,7 @@ export class UserReactionRepository {
 
   async countReactionsForArticle(
     articleId: number,
-    reactionType: ReactionType,
+    reactionType: ReactionTypeEnum,
   ): Promise<number> {
     return await this.repository.count({
       where: { articleId, reactionType },
@@ -83,8 +83,8 @@ export class UserReactionRepository {
     dislikes: number;
   }> {
     const [likes, dislikes] = await Promise.all([
-      this.countReactionsForArticle(articleId, ReactionType.LIKE),
-      this.countReactionsForArticle(articleId, ReactionType.DISLIKE),
+      this.countReactionsForArticle(articleId, ReactionTypeEnum.LIKE),
+      this.countReactionsForArticle(articleId, ReactionTypeEnum.DISLIKE),
     ]);
 
     return { likes, dislikes };

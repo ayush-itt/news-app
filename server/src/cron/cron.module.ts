@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { NewsAggregationCron } from './news-aggregation.cron';
+import { NewsAggregationCronJob } from './news-aggregation.cron';
 import { NewsProcessingService } from './news-processing.service';
-import { SimpleNewsApiService } from '@/news-aggregation/simple-news-api.service';
+import { NewsApiService } from '@/news-aggregation/news-api.service';
 import { ArticlesModule } from '@/articles/articles.module';
 import { NotificationsModule } from '@/notifications/notifications.module';
 import { Article } from '@/database/entities/article.entity';
@@ -17,7 +17,7 @@ import { NewsSource } from '@/database/entities/news-source.entity';
     ArticlesModule,
     NotificationsModule,
   ],
-  providers: [NewsAggregationCron, SimpleNewsApiService, NewsProcessingService],
-  exports: [NewsAggregationCron],
+  providers: [NewsAggregationCronJob, NewsApiService, NewsProcessingService],
+  exports: [NewsAggregationCronJob],
 })
 export class CronModule {}

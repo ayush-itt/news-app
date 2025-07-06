@@ -1,8 +1,9 @@
 import { IsOptional, IsBoolean, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { IBannedKeywordQuery } from '../interfaces';
 
-export class GetBannedKeywordsQueryDto {
+export class GetBannedKeywordsQueryDto implements IBannedKeywordQuery {
   @ApiProperty({
     description: 'Filter by active status',
     example: true,

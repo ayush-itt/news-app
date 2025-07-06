@@ -1,7 +1,9 @@
-import { EmailNotificationData } from './email.service';
+import { Injectable } from '@nestjs/common';
+import { IEmailNotificationData } from './interfaces';
 
-export class EmailTemplateHelper {
-  static generateHtmlTemplate(data: EmailNotificationData): string {
+@Injectable()
+export class EmailTemplateService {
+  generateHtmlTemplate(data: IEmailNotificationData): string {
     const articlesHtml = data.articles
       .map(
         (article) => `
@@ -52,7 +54,7 @@ export class EmailTemplateHelper {
     `;
   }
 
-  static generateTextTemplate(data: EmailNotificationData): string {
+  generateTextTemplate(data: IEmailNotificationData): string {
     const articlesText = data.articles
       .map((article, index) => {
         let text = `${index + 1}. ${article.title}\n   Link: ${article.url}`;

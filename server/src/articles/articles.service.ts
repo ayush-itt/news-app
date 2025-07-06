@@ -11,9 +11,9 @@ import { UserReadingHistoryService } from '../user-reading-history/user-reading-
 import { Article } from '../database/entities/article.entity';
 import { CreateArticleDto, UpdateArticleDto, ArticleQueryDto } from './dto';
 import {
-  ArticleFilters,
-  PaginationOptions,
-  PaginatedResult,
+  IArticleFilters,
+  IPaginationOptions,
+  IPaginatedResponse,
 } from './interfaces';
 import { PAGINATION } from '../common/constants/pagination.constants';
 
@@ -36,13 +36,12 @@ export class ArticlesService {
     }
 
     // Check for banned keywords in title and content
-    const titleCheck = await this.bannedKeywordsService.containsBannedKeywords(
+    const titleCheck = await this.bannedKeywordsService.validateContent(
       createArticleDto.title,
     );
-    const contentCheck =
-      await this.bannedKeywordsService.containsBannedKeywords(
-        createArticleDto.content || '',
-      );
+    const contentCheck = await this.bannedKeywordsService.validateContent(
+      createArticleDto.content || '',
+    );
 
     if (titleCheck.hasBanned || contentCheck.hasBanned) {
       const allMatchedKeywords = [
@@ -56,7 +55,7 @@ export class ArticlesService {
 
     // Validate categories if provided
     if (createArticleDto.categoryIds?.length) {
-      await this.validateCategories(createArticleDto.categoryIds);
+      await this.ensureCategoriesExist(createArticleDto.categoryIds);
     }
 
     // Create the article - transform DTO to entity data
@@ -84,17 +83,17 @@ export class ArticlesService {
     return await this.articleRepository.findByIdWithCategories(savedArticle.id);
   }
 
-  async findAllArticles(
+  async getArticles(
     query: ArticleQueryDto,
     user?: any, // User entity from JWT
-  ): Promise<PaginatedResult<Article>> {
+  ): Promise<IPaginatedResponse<Article>> {
     const {
       page = PAGINATION.DEFAULT_PAGE,
       limit = PAGINATION.DEFAULT_LIMIT,
       ...filterParams
     } = query;
 
-    const filters: ArticleFilters = {
+    const filters: IArticleFilters = {
       categoryIds: filterParams.categoryIds,
       search: filterParams.search,
       author: filterParams.author,
@@ -109,12 +108,12 @@ export class ArticlesService {
       includeInactive: user?.role?.name === 'admin',
     };
 
-    const pagination: PaginationOptions = { page, limit };
+    const pagination: IPaginationOptions = { page, limit };
 
     return await this.articleRepository.findAllPaginated(filters, pagination);
   }
 
-  async findArticleById(id: number, user?: any): Promise<Article> {
+  async getArticleById(id: number, user?: any): Promise<Article> {
     let article: Article | null;
 
     // Admin can see all articles, regular users only see active ones
@@ -168,7 +167,7 @@ export class ArticlesService {
 
     // Validate categories if provided
     if (updateArticleDto.categoryIds?.length) {
-      await this.validateCategories(updateArticleDto.categoryIds);
+      await this.ensureCategoriesExist(updateArticleDto.categoryIds);
     }
 
     // Prepare update data - transform dates if present
@@ -217,19 +216,19 @@ export class ArticlesService {
     }
   }
 
-  async findArticlesByCategory(
+  async getArticlesByCategory(
     categoryId: number,
     page: number = PAGINATION.DEFAULT_PAGE,
     limit: number = PAGINATION.DEFAULT_LIMIT,
     user?: any,
-  ): Promise<PaginatedResult<Article>> {
+  ): Promise<IPaginatedResponse<Article>> {
     // Verify category exists
     const category = await this.categoryRepository.findById(categoryId);
     if (!category) {
       throw new NotFoundException(`Category with ID ${categoryId} not found`);
     }
 
-    const filters: ArticleFilters = {
+    const filters: IArticleFilters = {
       categoryIds: [categoryId],
       // Admin can see all articles, regular users only see active ones
       includeInactive: user?.role?.name === 'admin',
@@ -241,19 +240,19 @@ export class ArticlesService {
     });
   }
 
-  async searchArticles(
+  async searchByQuery(
     searchTerm: string,
     page: number = PAGINATION.DEFAULT_PAGE,
     limit: number = PAGINATION.DEFAULT_LIMIT,
     user?: any,
-  ): Promise<PaginatedResult<Article>> {
+  ): Promise<IPaginatedResponse<Article>> {
     if (!searchTerm || searchTerm.trim().length < 2) {
       throw new BadRequestException(
         'Search term must be at least 2 characters long',
       );
     }
 
-    const filters: ArticleFilters = {
+    const filters: IArticleFilters = {
       search: searchTerm.trim(),
       // Admin can see all articles, regular users only see active ones
       includeInactive: user?.role?.name === 'admin',
@@ -265,7 +264,7 @@ export class ArticlesService {
     });
   }
 
-  private async validateCategories(categoryIds: number[]): Promise<void> {
+  private async ensureCategoriesExist(categoryIds: number[]): Promise<void> {
     const categories = await this.categoryRepository.findByIds(categoryIds);
 
     if (categories.length !== categoryIds.length) {
@@ -319,17 +318,16 @@ export class ArticlesService {
    * @param article - Article to check
    * @returns Promise with banned keyword check result
    */
-  async checkArticleForBannedKeywords(article: Article): Promise<{
+  async validateContentForBannedKeywords(article: Article): Promise<{
     hasBanned: boolean;
     matchedKeywords: string[];
   }> {
-    const titleCheck = await this.bannedKeywordsService.containsBannedKeywords(
+    const titleCheck = await this.bannedKeywordsService.validateContent(
       article.title,
     );
-    const contentCheck =
-      await this.bannedKeywordsService.containsBannedKeywords(
-        article.content || '',
-      );
+    const contentCheck = await this.bannedKeywordsService.validateContent(
+      article.content || '',
+    );
 
     return {
       hasBanned: titleCheck.hasBanned || contentCheck.hasBanned,

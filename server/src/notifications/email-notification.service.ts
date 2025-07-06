@@ -4,6 +4,7 @@ import { NotificationsService } from '@/notifications/notifications.service';
 import { UserPreferencesService } from '@/user-preferences/user-preferences.service';
 import { Article } from '@/database/entities/article.entity';
 import { Notification } from '@/database/entities/notification.entity';
+import { IEmailArticleData } from './interfaces';
 
 @Injectable()
 export class EmailNotificationService {
@@ -122,13 +123,7 @@ export class EmailNotificationService {
   private buildArticleDataForEmail(
     notifications: Notification[],
     articles: Article[],
-  ): Array<{
-    id: number;
-    title: string;
-    url: string;
-    category?: string;
-    keyword?: string;
-  }> {
+  ): IEmailArticleData[] {
     return notifications
       .map((notification) => {
         const article = articles.find((a) => a.id === notification.articleId);

@@ -11,8 +11,9 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
+import { IArticleCreation } from '../interfaces';
 
-export class CreateArticleDto {
+export class CreateArticleDto implements IArticleCreation {
   @ApiProperty({
     description: 'Title of the article',
     example: 'Breaking: Major Technology Breakthrough Announced',
