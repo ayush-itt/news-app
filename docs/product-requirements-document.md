@@ -49,6 +49,21 @@ A news aggregation system consisting of server and client applications. The serv
   - **Category-based notifications**: Receive all news for selected categories
   - **Keyword-based notifications**: Receive specific news matching keywords within selected categories
   - **Keyword scope**: Keywords work within category context, not independently
+- **Article Reporting**:
+  - Report articles with custom reasons
+  - Users can provide detailed explanations for reports
+  - Cannot report the same article multiple times
+- **Personalized Content & Analytics**:
+  - Advanced reading history tracking with detailed analytics
+  - Personalized article recommendations based on behavior patterns
+  - Reading statistics including completion rates and time spent
+  - Cross-platform reading synchronization
+  - Privacy-compliant data management with GDPR deletion options
+  - Real-time recommendation engine based on multiple factors:
+    - Reading history and patterns
+    - User preferences and subscriptions
+    - Article likes and bookmarks
+    - Category engagement metrics
 
 ### **Admin Features**
 
@@ -56,6 +71,24 @@ A news aggregation system consisting of server and client applications. The serv
 - Edit external server details
 - Add news categories
 - User management
+- **Article Content Moderation**:
+  - Hide/show individual articles from public view
+  - View all articles (including hidden ones)
+  - Manage reported articles
+- **Report Management**:
+  - Receive notifications when articles are reported
+  - Review and take action on reported articles
+  - Auto-hide articles when reports exceed threshold (5 reports)
+- **Category Management**:
+  - Activate/deactivate entire categories
+  - Hidden categories prevent articles from being shown to users
+- **Keyword Filtering**:
+  - Manage banned keywords with advanced filtering options
+  - Support for case-sensitive and regex pattern matching
+  - Articles containing banned keywords are rejected during import
+  - Comprehensive admin interface for keyword management
+  - Toggle active/inactive status without deletion
+  - Manage list of banned keywords
 
 ### **Notification**
 
@@ -182,3 +215,45 @@ A news aggregation system consisting of server and client applications. The serv
 - Layered architecture
 - API documentation
 - Clean, maintainable code
+
+---
+
+## 🧩 **Advanced Features & Complexities**
+
+### **Complexity 1: Admin Controls**
+
+#### **Report Feature**
+
+- Users can flag/report news articles with custom reasons
+- Admin receives notifications when articles are reported
+- Admin can manually hide reported articles from public view
+- Auto-hide feature: Articles are automatically hidden when reports exceed threshold (5 reports)
+- Duplicate prevention: Users cannot report the same article multiple times
+
+#### **Category Management**
+
+- Admins can activate/deactivate entire categories
+- Inactive categories hide all associated articles from users
+- Admin retains access to view articles from inactive categories
+
+#### **Keyword Filtering**
+
+- Admins can add banned keywords to filter content
+- Articles containing banned keywords are automatically hidden from users
+- Comprehensive keyword management interface for admins
+
+### **Complexity 2: User Personalization**
+
+#### **Personalized Recommendations**
+
+News articles are personalized and recommended based on:
+
+- **Configured notification settings**: Category and keyword preferences
+- **Keywords added for notifications**: User-defined interest keywords
+- **Articles the user has liked**: Positive interaction history
+- **Articles the user has saved**: Bookmark behavior analysis
+- **History of articles the user has read**: Reading pattern tracking
+
+#### **Objective**
+
+Ensure users receive more relevant and engaging content tailored to their behavior and preferences through advanced recommendation algorithms.
