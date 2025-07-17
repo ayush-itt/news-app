@@ -9,6 +9,7 @@ import {
   CreateArticleReportDto,
   ReactionType,
 } from "../../../interfaces";
+import { BookmarkService } from "../../../services/bookmark.service";
 import { ArticleReportService } from "../../../services/article-report.service";
 
 export async function articleBrowsingPage(): Promise<void> {
@@ -495,40 +496,78 @@ async function displayFullArticle(article: IArticle): Promise<void> {
 
   ConsoleUI.separator();
 
-  // Article action menu
-  const choices = [
-    { name: "� Like this Article", value: "like" },
-    { name: "👎 Dislike this Article", value: "dislike" },
-    { name: "�🚨 Report this Article", value: "report" },
-    { name: "🔙 Back to Articles", value: "back" },
-  ];
-
+  // Bookmark logic
+  const bookmarkService = new BookmarkService();
+  let isBookmarked = false;
   try {
-    const { action } = await inquirer.prompt([
-      {
-        type: "list",
-        name: "action",
-        message: "What would you like to do?",
-        choices,
-      },
-    ]);
+    isBookmarked = await bookmarkService.isArticleBookmarked(article.id);
+  } catch {}
 
-    switch (action) {
-      case "like":
-        await reactToArticle(article, ReactionType.LIKE);
-        break;
-      case "dislike":
-        await reactToArticle(article, ReactionType.DISLIKE);
-        break;
-      case "report":
-        await reportArticleFromView(article);
-        break;
-      case "back":
-        return;
+  while (true) {
+    // Dynamic menu
+    const choices = [
+      { name: "👍 Like this Article", value: "like" },
+      { name: "👎 Dislike this Article", value: "dislike" },
+      {
+        name: isBookmarked
+          ? "🔖 Unsave (Remove Bookmark)"
+          : "🔖 Save (Bookmark) Article",
+        value: "bookmark",
+      },
+      { name: "🚨 Report this Article", value: "report" },
+      { name: "🔙 Back to Articles", value: "back" },
+    ];
+
+    try {
+      const { action } = await inquirer.prompt([
+        {
+          type: "list",
+          name: "action",
+          message: "What would you like to do?",
+          choices,
+        },
+      ]);
+
+      switch (action) {
+        case "like":
+          await reactToArticle(article, ReactionType.LIKE);
+          break;
+        case "dislike":
+          await reactToArticle(article, ReactionType.DISLIKE);
+          break;
+        case "bookmark":
+          if (isBookmarked) {
+            try {
+              await bookmarkService.removeBookmark(article.id);
+              ConsoleUI.success("Bookmark removed.");
+              isBookmarked = false;
+            } catch (e: any) {
+              ConsoleUI.error(
+                "Failed to remove bookmark: " + (e?.message || e)
+              );
+            }
+          } else {
+            try {
+              await bookmarkService.saveBookmark(article.id);
+              ConsoleUI.success("Article bookmarked.");
+              isBookmarked = true;
+            } catch (e: any) {
+              ConsoleUI.error(
+                "Failed to bookmark article: " + (e?.message || e)
+              );
+            }
+          }
+          break;
+        case "report":
+          await reportArticleFromView(article);
+          break;
+        case "back":
+          return;
+      }
+    } catch (error: any) {
+      ConsoleUI.error("Action error: " + error.message);
+      await waitForContinue();
     }
-  } catch (error: any) {
-    ConsoleUI.error("Action error: " + error.message);
-    await waitForContinue();
   }
 }
 
@@ -552,20 +591,6 @@ async function reportArticleFromView(article: IArticle): Promise<void> {
   console.log(`📰 Article: ${article.title}`);
   console.log(`🆔 Article ID: ${article.id}`);
   ConsoleUI.separator();
-
-  // Check if user has already reported this article
-  try {
-    const hasReported = await articleReportService.hasUserReportedArticle(
-      article.id
-    );
-    if (hasReported) {
-      ConsoleUI.error("You have already reported this article.");
-      await waitForContinue();
-      return;
-    }
-  } catch (error: any) {
-    // Continue with reporting process
-  }
 
   // Show predefined reasons
   const predefinedReasons = articleReportService.getPredefinedReasons();
@@ -633,22 +658,28 @@ async function reportArticleFromView(article: IArticle): Promise<void> {
 
     // Submit report
     ConsoleUI.info("Submitting report...");
-    const report = await articleReportService.reportArticle(
-      article.id,
-      reportData
-    );
-
-    ConsoleUI.success("✅ Article reported successfully!");
-    console.log(`Report ID: ${report.id}`);
-    console.log(
-      `Reason: ${articleReportService.formatReasonForDisplay(report.reason)}`
-    );
-    console.log(`Reported at: ${new Date(report.createdAt).toLocaleString()}`);
-    ConsoleUI.info("Thank you for helping maintain content quality!");
+    try {
+      const report = await articleReportService.reportArticle(
+        article.id,
+        reportData
+      );
+      ConsoleUI.success("✅ Article reported successfully!");
+      console.log(`Report ID: ${report.id}`);
+      console.log(
+        `Reason: ${articleReportService.formatReasonForDisplay(report.reason)}`
+      );
+      console.log(
+        `Reported at: ${new Date(report.createdAt).toLocaleString()}`
+      );
+      ConsoleUI.info("Thank you for helping maintain content quality!");
+    } catch (error: any) {
+      if (error.message && error.message.includes("already reported")) {
+        ConsoleUI.error("You have already reported this article.");
+      }
+    }
   } catch (error: any) {
-    ConsoleUI.error(`Failed to report article: ${error.message}`);
+    ConsoleUI.error("Report error: " + error.message);
   }
-
   await waitForContinue();
 }
 

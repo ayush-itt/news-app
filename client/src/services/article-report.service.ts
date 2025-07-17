@@ -79,23 +79,6 @@ export class ArticleReportService {
   }
 
   /**
-   * Check if current user has already reported an article
-   */
-  async hasUserReportedArticle(articleId: number): Promise<boolean> {
-    try {
-      // Try to report with empty data to check if already reported
-      await this.reportArticle(articleId, {});
-      return false; // If no error, user hasn't reported yet
-    } catch (error: any) {
-      if (error.message.includes("already reported")) {
-        return true;
-      }
-      // For other errors, assume not reported
-      return false;
-    }
-  }
-
-  /**
    * Get predefined report reasons
    */
   getPredefinedReasons(): string[] {

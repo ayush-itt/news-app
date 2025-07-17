@@ -85,20 +85,6 @@ export class ArticleReportManagement {
 
     const articleId = parseInt(articleIdStr.trim());
 
-    // Check if user has already reported this article
-    try {
-      console.log("\nChecking if you have already reported this article...");
-      const hasReported =
-        await this.articleReportService.hasUserReportedArticle(articleId);
-      if (hasReported) {
-        console.log("\n❌ You have already reported this article.");
-        await this.waitForKeyPress();
-        return;
-      }
-    } catch (error: any) {
-      // Continue with reporting process
-    }
-
     const predefinedReasons = this.articleReportService.getPredefinedReasons();
     const reasonChoices = [
       ...predefinedReasons.map((reason, index) => ({
@@ -143,13 +129,12 @@ export class ArticleReportManagement {
       reportData.reason = reasonChoice;
     }
 
+    console.log("\nSubmitting report...");
     try {
-      console.log("\nSubmitting report...");
       const report = await this.articleReportService.reportArticle(
         articleId,
         reportData
       );
-
       console.log("\n✅ Article reported successfully!");
       console.log("=".repeat(40));
       console.log(`Report ID: ${report.id}`);
@@ -164,7 +149,11 @@ export class ArticleReportManagement {
       );
       console.log("\nThank you for helping maintain content quality!");
     } catch (error: any) {
-      console.log(`\n❌ Failed to report article: ${error.message}`);
+      if (error.message && error.message.includes("already reported")) {
+        console.log("\n❌ You have already reported this article.");
+      } else {
+        console.log(`\n❌ Failed to report article: ${error.message}`);
+      }
     }
 
     await this.waitForKeyPress();
