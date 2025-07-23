@@ -1,0 +1,423 @@
+@startuml News_Aggregation_System_Class_Diagram
+
+!theme aws-orange
+title News Aggregation System - Enterprise Class Diagram
+caption Clean Architecture | SOLID Principles | NestJS Framework
+
+' ===== STYLING =====
+skinparam class {
+    BackgroundColor<<Entity>> #E3F2FD
+    BorderColor<<Entity>> #1976D2
+    BackgroundColor<<Controller>> #FFF8E1
+    BorderColor<<Controller>> #FF8F00
+    BackgroundColor<<Service>> #F3E5F5
+    BorderColor<<Service>> #7B1FA2
+    BackgroundColor<<Repository>> #E8F5E8
+    BorderColor<<Repository>> #388E3C
+    BackgroundColor<<DTO>> #FFF3E0
+    BorderColor<<DTO>> #E65100
+    BackgroundColor<<Enum>> #F5F5F5
+    BorderColor<<Enum>> #666666
+    BackgroundColor<<Guard>> #FFEBEE
+    BorderColor<<Guard>> #C62828
+}
+
+skinparam package {
+    BackgroundColor #F8F9FA
+    BorderColor #343A40
+    FontStyle bold
+}
+
+' ===== ENTITY LAYER =====
+package "🗂️ ENTITY LAYER - Domain Models" <<Rectangle>> {
+    
+    class User <<Entity>> {
+        -id: number
+        -roleId: number
+        -username: string
+        -email: string
+        -password: string
+        -isActive: boolean
+        -isDeleted: Date
+        -createdAt: Date
+        -updatedAt: Date
+        --
+        +hashPassword(): void
+        +validatePassword(password: string): boolean
+    }
+    
+    class Role <<Entity>> {
+        -id: number
+        -name: string
+        -description: string
+        -createdAt: Date
+    }
+    
+    class Article <<Entity>> {
+        -id: number
+        -title: string
+        -content: string
+        -author: string
+        -source: string
+        -original_url: string
+        -published_at: Date
+        -scraped_at: Date
+    }
+    
+    class Category <<Entity>> {
+        -id: number
+        -name: string
+        -slug: string
+        -description: string
+        -isActive: boolean
+        -createdAt: Date
+    }
+    
+    class UserReaction <<Entity>> {
+        -id: number
+        -userId: number
+        -articleId: number
+        -reactionType: ReactionType
+        -createdAt: Date
+        -updatedAt: Date
+    }
+    
+    class Bookmark <<Entity>> {
+        -id: number
+        -userId: number
+        -articleId: number
+        -createdAt: Date
+    }
+}
+
+' ===== CONTROLLER LAYER =====
+package "🌐 CONTROLLER LAYER - API Endpoints" <<Rectangle>> {
+    
+    class AuthController <<Controller>> {
+        +login(loginDto: LoginDto): AuthResponse
+        +logout(): LogoutResponse
+        --
+        POST /auth/login
+        POST /auth/logout
+    }
+    
+    class UsersController <<Controller>> {
+        +register(registerDto: RegisterDto): RegistrationResponse
+        +getProfile(): User
+        +updateProfile(updateDto: UpdateUserDto): UpdateUserResponse
+        +deleteProfile(): DeleteUserResponse
+        --
+        POST /users/register
+        GET /users/profile
+        PUT /users/profile
+        DELETE /users/profile
+    }
+    
+    class ArticlesController <<Controller>> {
+        +getArticles(queryDto: ArticleQueryDto): PaginatedResult<Article>
+        +getArticle(id: number): ArticleResponse
+        +searchArticles(searchDto: SearchDto): PaginatedResult<Article>
+        --
+        GET /articles
+        GET /articles/:id
+        GET /articles/search
+    }
+    
+    class CategoriesController <<Controller>> {
+        +getCategories(): Category[]
+        +getCategory(id: number): Category
+        --
+        GET /categories
+        GET /categories/:id
+    }
+    
+    class UserReactionsController <<Controller>> {
+        +reactToArticle(articleId: number, reactionDto: ReactionRequestDto): ReactionResponse
+        +getUserReactions(): ReactionResponse[]
+        +getUserLikedArticles(): ReactionResponse[]
+        +getArticleReactionStats(articleId: number): ReactionStats
+        --
+        POST /reactions
+        GET /reactions/user
+        GET /reactions/liked
+        GET /reactions/stats/:id
+    }
+    
+    class UserBookmarksController <<Controller>> {
+        +bookmarkArticle(articleId: number): BookmarkResponse
+        +removeBookmark(articleId: number): BookmarkStatus
+        +getUserBookmarks(): BookmarkResponse[]
+        --
+        POST /bookmarks
+        DELETE /bookmarks/:id
+        GET /bookmarks/user
+    }
+}
+
+' ===== SERVICE LAYER =====
+package "⚙️ SERVICE LAYER - Business Logic" <<Rectangle>> {
+    
+    class AuthService <<Service>> {
+        +validateUserByEmail(email: string, password: string): User
+        +login(loginDto: LoginDto): AuthResult
+        +generateAuthResult(user: User): AuthResult
+        +validateToken(token: string): boolean
+        --
+        Business Rules:
+        - Password validation
+        - JWT token generation
+        - Session management
+    }
+    
+    class UsersService <<Service>> {
+        +register(registerDto: RegisterDto): Object
+        +findById(id: number): User
+        +findByEmail(email: string): User
+        +updateUserById(id: number, updateDto: UpdateUserDto): Object
+        +deleteUserById(id: number): Object
+        --
+        Business Rules:
+        - Email uniqueness validation
+        - Password hashing
+        - User data validation
+    }
+    
+    class ArticlesService <<Service>> {
+        +findAll(filters: ArticleFilters): PaginatedResult<Article>
+        +findById(id: number): Article
+        +searchArticles(criteria: SearchCriteria): Article[]
+        +applyFilters(filters: ArticleFilters): QueryBuilder
+        --
+        Business Rules:
+        - Content filtering
+        - Search optimization
+        - Pagination logic
+    }
+    
+    class CategoriesService <<Service>> {
+        +findAll(): Category[]
+        +findById(id: number): Category
+        +findActiveCategories(): Category[]
+        --
+        Business Rules:
+        - Category hierarchy
+        - Active status filtering
+    }
+    
+    class UserReactionsService <<Service>> {
+        +reactToArticle(userId: number, articleId: number, type: ReactionType): UserReaction
+        +getUserReactions(userId: number): UserReaction[]
+        +getArticleReactionStats(articleId: number): Object
+        +handleDuplicateReactions(userId: number, articleId: number): void
+        --
+        Business Rules:
+        - One reaction per user per article
+        - Reaction type validation
+        - Statistics calculation
+    }
+    
+    class UserBookmarksService <<Service>> {
+        +bookmarkArticle(userId: number, articleId: number): Bookmark
+        +removeBookmark(userId: number, articleId: number): void
+        +getUserBookmarks(userId: number): Bookmark[]
+        +validateBookmarkPermissions(userId: number, articleId: number): boolean
+        --
+        Business Rules:
+        - Duplicate bookmark prevention
+        - User permission validation
+    }
+}
+
+' ===== REPOSITORY LAYER =====
+package "🗄️ REPOSITORY LAYER - Data Access" <<Rectangle>> {
+    
+    class UserRepository <<Repository>> {
+        +findById(id: number): User
+        +findByEmail(email: string): User
+        +createUser(userData: CreateUserData): User
+        +updateUser(id: number, data: UpdateUserData): User
+        +deleteUser(id: number): boolean
+        --
+        Data Operations:
+        - CRUD operations
+        - Query optimization
+        - Transaction management
+    }
+    
+    class ArticleRepository <<Repository>> {
+        +findAll(filters: ArticleFilters): Article[]
+        +findById(id: number): Article
+        +findByIdWithCategories(id: number): Article
+        +searchByContent(query: string): Article[]
+        +countByFilters(filters: ArticleFilters): number
+        --
+        Data Operations:
+        - Full-text search
+        - Category joins
+        - Pagination support
+    }
+    
+    class CategoryRepository <<Repository>> {
+        +findAll(): Category[]
+        +findById(id: number): Category
+        +findByName(name: string): Category
+        +findActiveCategories(): Category[]
+        --
+        Data Operations:
+        - Status filtering
+        - Name-based queries
+    }
+    
+    class UserReactionRepository <<Repository>> {
+        +findByUserAndArticle(userId: number, articleId: number): UserReaction
+        +createReaction(userId: number, articleId: number, type: ReactionType): UserReaction
+        +updateReaction(id: number, type: ReactionType): UserReaction
+        +removeReaction(userId: number, articleId: number): boolean
+        +getArticleStats(articleId: number): ReactionStats
+        --
+        Data Operations:
+        - Composite key queries
+        - Aggregation functions
+        - Unique constraints
+    }
+    
+    class BookmarkRepository <<Repository>> {
+        +findByUserAndArticle(userId: number, articleId: number): Bookmark
+        +createBookmark(userId: number, articleId: number): Bookmark
+        +removeBookmark(userId: number, articleId: number): boolean
+        +findUserBookmarks(userId: number): Bookmark[]
+        --
+        Data Operations:
+        - User-specific queries
+        - Duplicate prevention
+    }
+}
+
+' ===== DTOs AND SUPPORTING CLASSES =====
+package "📤 DTOs & Supporting Classes" <<Rectangle>> {
+    
+    class LoginDto <<DTO>> {
+        +email: string
+        +password: string
+    }
+    
+    class RegisterDto <<DTO>> {
+        +username: string
+        +email: string
+        +password: string
+        +roleId?: number
+    }
+    
+    class ArticleQueryDto <<DTO>> {
+        +page?: number
+        +limit?: number
+        +category?: string
+        +author?: string
+        +dateFrom?: Date
+        +dateTo?: Date
+    }
+    
+    class ReactionRequestDto <<DTO>> {
+        +articleId: number
+        +reactionType: ReactionType
+    }
+    
+    enum ReactionType <<Enum>> {
+        LIKE
+        DISLIKE
+    }
+    
+    enum RoleEnum <<Enum>> {
+        ADMIN
+        USER
+    }
+    
+    class JwtAuthGuard <<Guard>> {
+        +canActivate(context: ExecutionContext): boolean
+        +extractTokenFromHeader(request: Request): string
+        +validateToken(token: string): boolean
+    }
+    
+    class GetUserDecorator <<Guard>> {
+        +createParamDecorator(): ParameterDecorator
+        +extractUserFromRequest(request: Request): User
+    }
+}
+
+' ===== RELATIONSHIPS =====
+
+' Entity Relationships
+User ||--o{ UserReaction : "has many"
+User ||--o{ Bookmark : "has many"
+User }o--|| Role : "belongs to"
+Article ||--o{ UserReaction : "has many"
+Article ||--o{ Bookmark : "has many"
+Article }o--o{ Category : "belongs to many"
+
+' Controller Dependencies
+AuthController ..> AuthService : "injects"
+UsersController ..> UsersService : "injects"
+ArticlesController ..> ArticlesService : "injects"
+CategoriesController ..> CategoriesService : "injects"
+UserReactionsController ..> UserReactionsService : "injects"
+UserBookmarksController ..> UserBookmarksService : "injects"
+
+' Service Dependencies
+AuthService ..> UserRepository : "uses"
+UsersService ..> UserRepository : "uses"
+ArticlesService ..> ArticleRepository : "uses"
+CategoriesService ..> CategoryRepository : "uses"
+UserReactionsService ..> UserReactionRepository : "uses"
+UserBookmarksService ..> BookmarkRepository : "uses"
+
+' DTO Usage
+AuthController ..> LoginDto : "uses"
+UsersController ..> RegisterDto : "uses"
+ArticlesController ..> ArticleQueryDto : "uses"
+UserReactionsController ..> ReactionRequestDto : "uses"
+
+' Enum Usage
+UserReaction ..> ReactionType : "uses"
+User ..> RoleEnum : "uses"
+
+' Guard Usage
+AuthController ..> JwtAuthGuard : "protected by"
+UsersController ..> JwtAuthGuard : "protected by"
+UserReactionsController ..> JwtAuthGuard : "protected by"
+UserBookmarksController ..> JwtAuthGuard : "protected by"
+
+' ===== NOTES =====
+note top of User : Core user entity with\nauthentication support
+note top of Article : Main content entity\nwith metadata
+note top of UserReaction : Many-to-many relationship\nwith reaction types
+note top of AuthService : Handles JWT authentication\nand user validation
+note top of ArticlesService : Complex filtering and\nsearch capabilities
+note top of UserRepository : Optimized queries for\nuser management
+
+legend right
+    |= Layer |= Responsibility |= Color |
+    | Entity | Domain Models | Light Blue |
+    | Controller | API Endpoints | Light Orange |
+    | Service | Business Logic | Light Purple |
+    | Repository | Data Access | Light Green |
+    | DTO | Data Transfer | Light Brown |
+    | Enum/Guard | Supporting | Gray/Red |
+    
+    **Design Patterns Used:**
+    • Repository Pattern
+    • Dependency Injection
+    • DTO Pattern
+    • Guard Pattern
+    • Service Layer Pattern
+    
+    **SOLID Principles:**
+    ✓ Single Responsibility
+    ✓ Open/Closed
+    ✓ Liskov Substitution
+    ✓ Interface Segregation
+    ✓ Dependency Inversion
+endlegend
+
+footer Architecture: 6 Entities | 6 Controllers | 6 Services | 5 Repositories | 15+ DTOs | 100%% SOLID Compliance
+
+@enduml

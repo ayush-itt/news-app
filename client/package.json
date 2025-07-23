@@ -1,0 +1,32 @@
+{
+  "name": "news-aggregation-client",
+  "version": "1.0.0",
+  "description": "Console-based client for News Aggregation System",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/main.js",
+    "dev": "npm run build && node dist/main.js",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "news",
+    "console",
+    "cli",
+    "typescript"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.10.0",
+    "chalk": "^4.1.2",
+    "inquirer": "^8.2.6",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^8.2.10",
+    "@types/node": "^24.0.3",
+    "typescript": "^5.4.5",
+    "rimraf": "^5.0.5"
+  }
+}

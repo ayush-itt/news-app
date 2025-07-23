@@ -1,0 +1,110 @@
+import {
+  Controller,
+  Post,
+  Delete,
+  Get,
+  Param,
+  HttpCode,
+  HttpStatus,
+  ParseIntPipe,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { UserBookmarksService } from './user-bookmarks.service';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import { User } from '../database/entities/user.entity';
+import { BookmarkResponseDto, BookmarkStatusDto } from './dto';
+import { Auth } from '@/auth/decorators';
+import { IBookmarkCheckResult } from './interfaces';
+
+@ApiTags('User Bookmarks')
+@Controller('user-bookmarks')
+@Auth()
+export class UserBookmarksController {
+  constructor(private readonly userBookmarksService: UserBookmarksService) {}
+
+  @Post(':articleId')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Bookmark an article' })
+  @ApiParam({ name: 'articleId', description: 'Article ID' })
+  @ApiResponse({
+    status: 201,
+    description: 'Article bookmarked successfully',
+    type: BookmarkResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'Article not found' })
+  @ApiResponse({ status: 409, description: 'Article already bookmarked' })
+  async bookmarkArticle(
+    @GetUser() user: User,
+    @Param('articleId', ParseIntPipe) articleId: number,
+  ): Promise<BookmarkResponseDto> {
+    const bookmark = await this.userBookmarksService.bookmarkArticle(
+      user.id,
+      articleId,
+    );
+    return BookmarkResponseDto.fromEntity(bookmark);
+  }
+
+  @Delete(':articleId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Remove bookmark from article' })
+  @ApiParam({ name: 'articleId', description: 'Article ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Bookmark removed successfully',
+    type: BookmarkStatusDto,
+  })
+  @ApiResponse({ status: 404, description: 'Article or bookmark not found' })
+  async removeBookmark(
+    @GetUser() user: User,
+    @Param('articleId', ParseIntPipe) articleId: number,
+  ): Promise<BookmarkStatusDto> {
+    await this.userBookmarksService.removeBookmark(user.id, articleId);
+    return {
+      message: 'Bookmark removed successfully',
+      success: true,
+    };
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get user bookmarked articles' })
+  @ApiResponse({
+    status: 200,
+    description: 'User bookmarked articles retrieved successfully',
+    type: [BookmarkResponseDto],
+  })
+  async getUserBookmarks(
+    @GetUser() user: User,
+  ): Promise<BookmarkResponseDto[]> {
+    const bookmarks = await this.userBookmarksService.getUserBookmarks(user.id);
+    return BookmarkResponseDto.fromEntities(bookmarks);
+  }
+
+  @Get('check/:articleId')
+  @ApiOperation({ summary: 'Check if article is bookmarked by user' })
+  @ApiParam({ name: 'articleId', description: 'Article ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Bookmark status retrieved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        isBookmarked: { type: 'boolean' },
+        articleId: { type: 'number' },
+      },
+    },
+  })
+  async isArticleBookmarked(
+    @GetUser() user: User,
+    @Param('articleId', ParseIntPipe) articleId: number,
+  ): Promise<IBookmarkCheckResult> {
+    const isBookmarked =
+      await this.userBookmarksService.isArticleBookmarkedByUser(
+        user.id,
+        articleId,
+      );
+    return {
+      isBookmarked,
+      articleId,
+    };
+  }
+}
